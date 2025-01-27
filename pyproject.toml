@@ -1,0 +1,16 @@
+[project]
+name = "face-link"
+version = "0.1.0"
+description = """
+Secure authentication service integrating AWS Cognito with facial recognition capabilities.
+Provides seamless biometric authentication flow, face matching verification, and user identity management.
+Built for enhanced security and frictionless user experience in modern applications."""
+readme = "README.md"
+requires-python = ">=3.12.1"
+dependencies = [
+    "alembic>=1.14.1",
+    "fastapi[standard]>=0.115.7",
+    "psycopg2>=2.9.10",
+    "pydantic-settings>=2.7.1",
+    "sqlmodel>=0.0.22",
+]
