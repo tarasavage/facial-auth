@@ -21,7 +21,7 @@ services:
       start_period: 30s
   
   database:
-    image: postgres:17.1-alpine
+    image: postgres:17.1
     restart: always
     env_file:
       - .env
