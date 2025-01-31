@@ -385,6 +385,7 @@ pip-selfcheck.json
 !.vscode/launch.json
 !.vscode/extensions.json
 !.vscode/*.code-snippets
+.python-version
 
 # Local History for Visual Studio Code
 .history/
