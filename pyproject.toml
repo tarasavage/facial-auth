@@ -9,7 +9,8 @@ readme = "README.md"
 requires-python = ">=3.12.1"
 dependencies = [
     "alembic>=1.14.1",
-    "fastapi[standard]>=0.115.7",
+    "boto3>=1.36.9",
+    "fastapi[standard]>=0.115.8",
     "psycopg2>=2.9.10",
     "pydantic-settings>=2.7.1",
     "sqlmodel>=0.0.22",

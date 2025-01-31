@@ -1,12 +1,9 @@
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy import text
-
-from core.config import Settings, get_settings
-from core.db import engine
-
+from fastapi import FastAPI
+from api.endpoints.auth import router as auth_router
 
 app = FastAPI()
 
+app.include_router(auth_router, prefix="/auth")
 
 @app.get("/")
 async def root():

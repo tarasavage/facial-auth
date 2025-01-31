@@ -36,6 +36,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 EXPOSE 8000
 
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+USER appuser
+
 RUN chmod +x /app/entrypoint.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]
