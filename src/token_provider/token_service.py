@@ -1,6 +1,7 @@
 from fastapi import Depends
 from typing_extensions import Annotated
-from repositories.token import CognitoRepoDependency, TokenRepo
+
+from token_provider.token_repo import CognitoRepoDependency, TokenRepo
 
 
 class TokenService:
@@ -15,9 +16,12 @@ class TokenService:
 
     def refresh_token(self, token: str) -> str:
         return self.token_provider.refresh_token(token)
-    
+
 
 def get_cognito_token_service(token_provider: CognitoRepoDependency) -> TokenService:
     return TokenService(token_provider)
 
-CognitoTokenServiceDependency = Annotated[TokenService, Depends(get_cognito_token_service)]
+
+CognitoTokenServiceDependency = Annotated[
+    TokenService, Depends(get_cognito_token_service)
+]

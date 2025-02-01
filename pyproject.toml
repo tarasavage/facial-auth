@@ -13,5 +13,6 @@ dependencies = [
     "fastapi[standard]>=0.115.8",
     "psycopg2>=2.9.10",
     "pydantic-settings>=2.7.1",
+    "ruff>=0.9.4",
     "sqlmodel>=0.0.22",
 ]
