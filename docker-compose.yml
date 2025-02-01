@@ -12,6 +12,8 @@ services:
       - database
     volumes:
       - ./src:/app/src
+    networks:
+      - main-network
   
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -39,6 +41,12 @@ services:
       timeout: 10s
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - main-network
 
 volumes:
   postgres_data:
+
+networks:
+  main-network:
+    driver: bridge

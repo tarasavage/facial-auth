@@ -20,10 +20,8 @@ class Settings(BaseSettings):
     AWS_ACCESS_KEY: str
     AWS_SECRET_ACCESS_KEY: str
 
-    AWS_COGNITO_AUTHORITY: str
     AWS_COGNITO_CLIENT_ID: str
     AWS_COGNITO_CLIENT_SECRET: str
-    AWS_COGNITO_SERVER_METADATA_URL: str
     AWS_COGNITO_USER_POOL_ID: str
 
     @property

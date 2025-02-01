@@ -1,13 +1,11 @@
 import abc
-import base64
-import hashlib
-import hmac
 from typing import Annotated
 
 import boto3
 from fastapi.params import Depends
 
 from core.config import Settings, SettingsDependency
+from utils.encryption import calculate_secret_hash
 
 
 class TokenRepo(abc.ABC):
@@ -44,12 +42,15 @@ class CognitoRepo(TokenRepo):
             "AuthParameters": {
                 "USERNAME": user,
                 "PASSWORD": pwd,
-                "SECRET_HASH": self._calculate_secret_hash(user),
+                "SECRET_HASH": calculate_secret_hash(
+                    user,
+                    self.cfg.AWS_COGNITO_CLIENT_ID,
+                    self.cfg.AWS_COGNITO_CLIENT_SECRET,
+                ),
             },
             "ClientId": self.cfg.AWS_COGNITO_CLIENT_ID,
             "UserPoolId": self.cfg.AWS_COGNITO_USER_POOL_ID,
         }
-
         resp = self.cognito_idp_client.admin_initiate_auth(**kwargs)
         return resp
 
@@ -61,14 +62,6 @@ class CognitoRepo(TokenRepo):
 
     def revoke_token(self, token: str) -> None:
         pass
-
-    def _calculate_secret_hash(self, username: str) -> str:
-        msg = username + self.cfg.AWS_COGNITO_CLIENT_ID
-        message = bytes(msg, 'utf-8')
-        key = bytes(self.cfg.AWS_COGNITO_CLIENT_SECRET, 'utf-8')
-        return base64.b64encode(
-            hmac.new(key, message, digestmod=hashlib.sha256).digest()
-        ).decode()
 
 
 def get_cognito_repo(settings: SettingsDependency) -> TokenRepo:
