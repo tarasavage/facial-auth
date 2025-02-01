@@ -1,17 +1,30 @@
 from functools import lru_cache
 
+from fastapi import Depends
 from pydantic_settings import BaseSettings
 from sqlalchemy import URL
+from typing_extensions import Annotated
 
 
 class Settings(BaseSettings):
     APP_NAME: str = "FaceLink"
+
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
     DB_ENGINE: str = "postgresql"
+
+    AWS_REGION: str = "us-east-1"
+    AWS_ACCESS_KEY: str
+    AWS_SECRET_ACCESS_KEY: str
+
+    AWS_COGNITO_AUTHORITY: str
+    AWS_COGNITO_CLIENT_ID: str
+    AWS_COGNITO_CLIENT_SECRET: str
+    AWS_COGNITO_SERVER_METADATA_URL: str
+    AWS_COGNITO_USER_POOL_ID: str
 
     @property
     def DATABASE_URI(self) -> str:
@@ -28,3 +41,6 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+SettingsDependency = Annotated[Settings, Depends(get_settings)]
