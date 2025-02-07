@@ -8,13 +8,14 @@ from typing_extensions import Annotated
 
 class Settings(BaseSettings):
     APP_NAME: str = "FaceLink"
+    APP_SECRET_KEY: str
 
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
-    DB_ENGINE: str = "postgresql"
+    DB_ENGINE: str = "postgresql+asyncpg"
 
     AWS_REGION: str = "us-east-1"
     AWS_ACCESS_KEY: str

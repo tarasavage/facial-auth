@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from api.endpoints.auth import router as auth_router
+from users.router import router as users_router
+from core.config import get_settings
 
 app = FastAPI()
 
+app.include_router(users_router, prefix="/users")
 app.include_router(auth_router, prefix="/auth")
 
 
