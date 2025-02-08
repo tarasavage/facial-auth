@@ -36,6 +36,10 @@ class Settings(BaseSettings):
             database=self.DB_NAME,
         ).render_as_string(hide_password=False)
 
+    @property
+    def AWS_COGNITO_SERVER_METADATA_URL(self) -> str:
+        return f"https://cognito-idp.{get_settings().AWS_REGION}.amazonaws.com/{get_settings().AWS_COGNITO_USER_POOL_ID}/.well-known/openid-configuration"
+
 
 @lru_cache
 def get_settings() -> Settings:
