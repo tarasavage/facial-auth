@@ -5,7 +5,7 @@ from fastapi import Depends
 from sqlmodel import Session
 
 from core.db import get_session
-from core.exception import (
+from users.exception import (
     UserAlreadyExistsError,
     UserNotDeletedError,
     UserNotFoundError,

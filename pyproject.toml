@@ -16,6 +16,8 @@ dependencies = [
     "itsdangerous>=2.2.0",
     "psycopg2>=2.9.10",
     "pydantic-settings>=2.7.1",
+    "pyjwt>=2.10.1",
+    "requests>=2.32.3",
     "ruff>=0.9.4",
     "sqlmodel>=0.0.22",
 ]

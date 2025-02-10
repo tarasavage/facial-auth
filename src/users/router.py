@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException, status
 
-from core.exception import UserAlreadyExistsError, UserNotFoundError
+from users.exception import UserAlreadyExistsError, UserNotFoundError
 from core.schemas import MessageResponse
 from users.schemas import CreateUser, UpdateUser, UserResponse
 from users.service import UsersServiceDependency
