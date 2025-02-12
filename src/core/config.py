@@ -8,13 +8,14 @@ from typing_extensions import Annotated
 
 class Settings(BaseSettings):
     APP_NAME: str = "FaceLink"
+    APP_SECRET_KEY: str
 
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
-    DB_ENGINE: str = "postgresql"
+    DB_ENGINE: str = "postgresql+asyncpg"
 
     AWS_REGION: str = "us-east-1"
     AWS_ACCESS_KEY: str
@@ -23,6 +24,7 @@ class Settings(BaseSettings):
     AWS_COGNITO_CLIENT_ID: str
     AWS_COGNITO_CLIENT_SECRET: str
     AWS_COGNITO_USER_POOL_ID: str
+    AWS_COGNITO_JWKS_URL: str
 
     @property
     def DATABASE_URI(self) -> str:
@@ -34,6 +36,10 @@ class Settings(BaseSettings):
             port=self.DB_PORT,
             database=self.DB_NAME,
         ).render_as_string(hide_password=False)
+
+    @property
+    def AWS_COGNITO_SERVER_METADATA_URL(self) -> str:
+        return f"https://cognito-idp.{get_settings().AWS_REGION}.amazonaws.com/{get_settings().AWS_COGNITO_USER_POOL_ID}/.well-known/openid-configuration"
 
 
 @lru_cache

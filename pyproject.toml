@@ -9,10 +9,15 @@ readme = "README.md"
 requires-python = ">=3.12.1"
 dependencies = [
     "alembic>=1.14.1",
+    "asyncpg>=0.30.0",
+    "authlib>=1.4.1",
     "boto3>=1.36.9",
     "fastapi[standard]>=0.115.8",
+    "itsdangerous>=2.2.0",
     "psycopg2>=2.9.10",
     "pydantic-settings>=2.7.1",
+    "pyjwt>=2.10.1",
+    "requests>=2.32.3",
     "ruff>=0.9.4",
     "sqlmodel>=0.0.22",
 ]
