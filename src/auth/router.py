@@ -1,85 +1,85 @@
-from typing import Annotated
-
-import jwt
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import EmailStr
-import requests
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from auth.service import CognitoTokenServiceDependency
-from core.config import get_settings
+from auth.token_service import BearerTokenDependency, CurrentUserDependency
+from users.exception import UserAlreadyExistsError, UserNotFoundError
+from users.schemas import CreateUser
+from users.service import UsersServiceDependency
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-security = HTTPBearer()
 
+@router.post("/signup")
+async def signup(
+    user: CreateUser,
+    cognito: CognitoTokenServiceDependency,
+    users_service: UsersServiceDependency,
+) -> JSONResponse:
+    """Register a new user."""
+    cognito.signup(user=user.email, pwd=user.password)
 
-def fetch_jwks(url: str) -> dict:
-    keys = requests.get(url).json()["keys"]
-    return {key["kid"]: key for key in keys}
-
-
-JWKS = fetch_jwks(get_settings().AWS_COGNITO_JWKS_URL)
-
-
-def verify_token(token: str, jwks: dict, audience: str) -> dict:
-    header = jwt.get_unverified_header(token)
-    if header["kid"] not in jwks:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-    jwk = jwks[header["kid"]]
-    public_key = jwt.algorithms.RSAAlgorithm.from_jwk(jwk)
     try:
-        payload = jwt.decode(
-            token,
-            public_key,
-            algorithms=["RS256"],
+        user = await users_service.create_user(user)
+    except UserAlreadyExistsError:
+        raise HTTPException(status_code=400, detail="User already exists")
 
-        )
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.MissingRequiredClaimError:
-        raise HTTPException(status_code=401, detail="Missing required claims")
-    except jwt.JWTError:
-        raise HTTPException(status_code=403, detail="Invalid token")
-
-    return payload
-
-
-def get_current_user(token: HTTPAuthorizationCredentials = Depends(security)) -> dict:
-    return verify_token(
-        token=token.credentials,
-        jwks=JWKS,
-        audience=get_settings().AWS_COGNITO_CLIENT_ID,
+    return JSONResponse(
+        status_code=200,
+        content={"message": "User signed up successfully"},
     )
 
 
-CurrentUserDependency = Annotated[dict, Depends(get_current_user)]
+@router.post("/confirm_signup")
+async def confirm_signup(
+    user: EmailStr,
+    code: str,
+    cognito: CognitoTokenServiceDependency,
+) -> dict:
+    """Confirm user registration with verification code."""
+    return cognito.confirm_signup(user, code)
 
 
 @router.post("/signin")
-async def signin(user: EmailStr, pwd: str, cognito: CognitoTokenServiceDependency):
-    return cognito.signin(user, pwd)
+async def signin(
+    user: EmailStr,
+    password: str,
+    cognito: CognitoTokenServiceDependency,
+    users_service: UsersServiceDependency,
+) -> JSONResponse:
+    """Authenticate user and return access tokens."""
+    tokens = cognito.signin(user, password)
 
+    try:
+        await users_service.get_user_by_email(user)
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=401, detail="User has not been created yet"
+        )
 
-@router.post("/signup")
-async def signup(user: EmailStr, pwd: str, cognito: CognitoTokenServiceDependency):
-    return cognito.signup(user, pwd)
-
-
-@router.post("/confirm_signup")
-async def confirm_signup(user: EmailStr, code: str, cognito: CognitoTokenServiceDependency):
-    return cognito.confirm_signup(user, code)
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": "User signed in successfully",
+            "access_token": tokens["AuthenticationResult"]["AccessToken"],
+            "refresh_token": tokens["AuthenticationResult"]["RefreshToken"],
+            "expires_in": tokens["AuthenticationResult"]["ExpiresIn"],
+            "token_type": tokens["AuthenticationResult"]["TokenType"],
+        },
+    )
 
 
 @router.post("/logout")
 async def logout(
     cognito: CognitoTokenServiceDependency,
-    token: HTTPAuthorizationCredentials = Depends(security),
-):
+    token: BearerTokenDependency,
+) -> dict:
+    """Logout user and invalidate their token."""
     return cognito.logout(token.credentials)
 
 
 @router.get("/me")
-async def me(current_user: CurrentUserDependency):
+async def me(current_user: CurrentUserDependency) -> dict:
+    """Get current user's profile."""
     return current_user

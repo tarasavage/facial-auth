@@ -7,4 +7,8 @@ class User(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     username: str = Field(sa_column=Column(String, unique=True))
     email: str = Field(sa_column=Column(String, unique=True))
-    password: str = Field(sa_column=Column(String))
+    face_image_key: str | None = Field(sa_column=Column(String, unique=True))
+
+    @property
+    def s3_face_image_key(self) -> str:
+        return f"users/{self.id}/face.jpg"

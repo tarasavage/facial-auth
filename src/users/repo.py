@@ -15,6 +15,9 @@ from core.repository import SQLModelRepository
 from users.model import User
 
 
+# TODO: move to core
+
+
 class IUnitOfWork(Protocol):
     """Unit of work interface for database operations"""
 
@@ -74,6 +77,18 @@ class UsersRepository(SQLModelRepository):
             return user
         except sqlalchemy.exc.ProgrammingError as e:
             raise UserNotDeletedError("User with id {id} is not deleted") from e
+
+    async def get_by_email(self, email: str) -> User:
+        user = await super().filter(email=email)
+        if not user:
+            raise UserNotFoundError("User with email {email} is not found")
+        return user[0]
+
+
+def get_users_repository(
+    session: Annotated[Session, Depends(get_session)],
+) -> UsersRepository:
+    return UsersRepository(session)
 
 
 def get_user_unit_of_work(

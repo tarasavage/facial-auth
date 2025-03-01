@@ -34,6 +34,10 @@ class UsersService:
             await uow.user_repo.update(id, user)
             await uow.commit()
 
+    async def get_user_by_email(self, email: str) -> User:
+        async with self.uow as uow:
+            return await uow.user_repo.get_by_email(email)
+
 
 def get_users_service(uow: UserUnitOfWorkDependency) -> UsersService:
     return UsersService(uow)
