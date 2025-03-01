@@ -1,0 +1,95 @@
+@use "sass:color";
+@use "../abstracts/variables" as *;
+
+.watchlist {
+  &__title {
+    font-size: 24px;
+    margin-bottom: 5px;
+    text-align: center;
+  }
+
+  &__group {
+    margin-bottom: $spacing-l;
+
+    h3 {
+      margin-bottom: $spacing-s;
+      text-align: left;
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: black;
+    }
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: $white-color;
+    box-shadow: 0 4px 8px $box-shadow-color;
+    border-radius: 8px;
+    overflow: hidden;
+
+    th, td {
+      padding: $spacing-s $spacing-m;
+      border-bottom: 1px solid color.adjust($background-color, $lightness: -15%);
+    }
+
+    th {
+      background-color: color.scale($secondary-color, $lightness: 90%); // Stronger blue for the header
+      font-weight: bold;
+      color: black;
+      text-align: left;
+    }
+
+    td {
+      text-align: left;
+    }
+
+    tr:hover {
+      background-color: color.scale($secondary-color, $lightness: 90%); // More noticeable blue on hover
+    }
+
+    // Left-align "Actions" header, right-align the action buttons
+    th:last-child {
+      text-align: left;
+    }
+
+    td:last-child {
+      text-align: right;
+      padding-right: $spacing-m;
+    }
+
+    &__actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: $spacing-xs;
+
+      .watchlist__button {
+        padding: $spacing-xs $spacing-s;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        background-color: $primary-color;
+        color: $white-color;
+
+        &:hover {
+          background-color: color.adjust($primary-color, $lightness: -10%);
+        }
+
+        &--remove {
+          background-color: $danger-color;
+          color: $white-color;
+
+          &:hover {
+            background-color: color.adjust($danger-color, $lightness: -10%);
+          }
+        }
+      }
+    }
+  }
+
+  &__chart-container {
+    margin-top: $spacing-xl;
+  }
+}

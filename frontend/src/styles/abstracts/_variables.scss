@@ -1,0 +1,35 @@
+// src/styles/abstracts/_variables.scss
+@use "sass:color"; // Import the `sass:color` module to use color functions
+
+// Colors
+$primary-color: #4caf50; // Main color for buttons
+$primary-color-hover: color.adjust($primary-color, $lightness: -10%); // Button color on hover
+$secondary-color: #007bff; // Example secondary color
+$secondary-color-hover: color.adjust($secondary-color, $lightness: -10%); // Button color on hover
+$social-color: #4285f4; // Color for social media (Google) button
+$social-color-hover: color.adjust($social-color, $lightness: -10%); // Google button hover
+$link-color: #007bff; // Default link color
+$link-hover-color: color.adjust($link-color, $lightness: -10%); // Link color on hover
+$background-color: #f0f0f0; // Background color for the page
+$white-color: #ffffff; // Color used for white backgrounds
+$danger-color: #dc3545; // Standard red color for danger actions
+$danger-color-hover: color.adjust($danger-color, $lightness: -10%);
+$box-shadow-color: rgba(0, 0, 0, 0.1); // Shadow color for boxes
+$icon-color: #4caf50; // Main color for icons
+$icon-color-hover: color.adjust($icon-color, $lightness: -10%); // Icon color on hover
+
+// Color in messages
+$error-color: #dc3545;
+$success-color: #28a745;
+
+// Typography
+$base-font-size: 16px; // Base font size for the application
+$base-font-family: 'Arial', sans-serif; // Base font family for text
+$heading-font-family: 'Roboto', sans-serif; // Font family for headings
+
+// Spacing
+$spacing-xs: 5px;   // Extra small spacing
+$spacing-s: 10px;   // Small spacing
+$spacing-m: 15px;   // Medium spacing
+$spacing-l: 20px;   // Large spacing
+$spacing-xl: 30px;  // Extra large spacing

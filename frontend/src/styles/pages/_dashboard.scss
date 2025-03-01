@@ -1,0 +1,28 @@
+// src/styles/pages/_dashboard.scss
+
+@use "../abstracts/variables" as vars;
+
+.page-container {
+  display: flex;
+  flex-direction: column; // Ensure vertical stacking of header and dashboard
+  min-height: 100vh; // Full height of the page
+  background-color: vars.$background-color; // Background for the whole page
+}
+
+.dashboard-container {
+  padding: vars.$spacing-l;
+  background-color: vars.$white-color;
+  box-shadow: 0 4px 6px vars.$box-shadow-color; 
+  border-radius: 20px; 
+  margin-top: vars.$spacing-s; // Space between header and dashboard content
+  max-width: 1200px; // Limit the width of the dashboard
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto; // Center dashboard content horizontally
+  flex: 1; // Allow the dashboard to grow and take up remaining space
+}
+
+.dashboard-content {
+  padding: vars.$spacing-m;
+  font-size: 18px;
+}
