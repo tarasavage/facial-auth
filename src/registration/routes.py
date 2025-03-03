@@ -1,11 +1,13 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
-from pydantic import EmailStr
 
 from auth.token_service import CurrentUserDependency
 from registration.decorators import protected_route
 from registration.exceptions import ServiceError
-from registration.schemas import UserSignInCredentials
+from registration.schemas import (
+    UserConfirmSignupCredentials,
+    UserSignInCredentials,
+)
 from registration.services import RegistrationServiceDependency
 from users.schemas import CreateUser
 
@@ -33,13 +35,14 @@ async def register_user(
 @router.post("/confirm_signup", status_code=status.HTTP_200_OK)
 @protected_route
 async def confirm_signup(
-    email: EmailStr,
-    code: str,
+    confirm_signup_data: UserConfirmSignupCredentials,
     registration_service: RegistrationServiceDependency,
 ) -> JSONResponse:
     """Confirm user registration with verification code."""
     try:
-        registration_service.confirm_signup(email, code)
+        registration_service.confirm_signup(
+            email=confirm_signup_data.email, code=confirm_signup_data.code
+        )
     except ServiceError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 

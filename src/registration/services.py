@@ -24,7 +24,7 @@ from rekognition.repository import (
 from s3.exceptions import ImageTooLargeError
 from s3.service import S3Service, S3ServiceDependency
 from users.repo import UsersRepository
-from users.schemas import CreateUser, UpdateUser
+from users.schemas import CreateUser
 
 MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 

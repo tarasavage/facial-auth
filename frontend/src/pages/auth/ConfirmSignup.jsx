@@ -21,11 +21,12 @@ export const ConfirmSignup = () => {
         e.preventDefault();
         const apiUrl = 'http://0.0.0.0:8000';
         try {
-            const response = await fetch(`${apiUrl}/registration/confirm_signup?email=${email}&code=${code}`, {
+            const response = await fetch(`${apiUrl}/registration/confirm_signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                body: JSON.stringify({ email, code })
             });
             const data = await response.json();
             if (!response.ok) {

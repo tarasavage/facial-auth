@@ -1,5 +1,5 @@
 import logging
-from typing import Annotated, Protocol
+from typing import Annotated
 
 from fastapi import Depends
 from sqlmodel import Session
