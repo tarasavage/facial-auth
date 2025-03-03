@@ -12,3 +12,7 @@ class UserNotDeletedError(Exception):
 
 class UserNotUpdatedError(Exception):
     pass
+
+
+class UserNotCreatedError(Exception):
+    pass

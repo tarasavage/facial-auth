@@ -1,0 +1,74 @@
+// src/styles/components/_navbar.scss
+
+@use "../abstracts/variables" as vars;
+
+.navbar {
+  background-color: vars.$white-color; // Light background
+  display: flex;
+  justify-content: center; // Center content
+  padding: 10px 20px;
+  border-bottom: 1px solid vars.$box-shadow-color;
+
+  .navbar__container {
+    display: flex;
+    justify-content: space-between; // Evenly space user info and sign out
+    max-width: 1200px; // Match max width with dashboard
+    width: 100%;
+    align-items: center; // Align items in the center vertically
+  }
+
+  // Container for user info and Edit Profile link
+  .navbar__links {
+    display: flex;
+    gap: vars.$spacing-s; // Adds space between name and Edit Profile link
+    margin-left: auto; // Push to the right side
+    align-items: center; // Align items in the center vertically
+  }
+
+  // Styling for the user name
+  .navbar__user-info {
+    font-size: 1em; // Match size with Edit Profile link
+    font-weight: bold; // Make the name bold
+    // color: vars.$link-color; // Set color to link color
+    text-decoration: none; // Remove underline
+    line-height: 1; // Ensures proper alignment
+  }
+
+  // Profile link styling
+  .navbar__link {
+    font-size: 1em;
+    color: vars.$link-color;
+    text-decoration: none;
+    transition: color 0.3s;
+
+    &:hover {
+      color: vars.$link-hover-color;
+    }
+  }
+
+  // Sign out button styling
+  .navbar__signout {
+    margin-left: vars.$spacing-m; // Slight space between links and button
+  }
+}
+
+// Button styling
+button.button--signout {
+  background-color: vars.$danger-color;
+  color: vars.$white-color;
+  border: none;
+  padding: vars.$spacing-s vars.$spacing-m;
+  border-radius: 20px; // Rounded corners
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  box-shadow: 0px 4px 8px vars.$box-shadow-color; // Light shadow
+
+  &:hover {
+    background-color: vars.$danger-color-hover;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}

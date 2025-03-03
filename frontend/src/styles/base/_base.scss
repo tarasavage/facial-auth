@@ -1,0 +1,43 @@
+// src/styles/base/_base.scss
+
+@use '../abstracts/variables' as vars;  // Import variables with a namespace
+
+// Base styles applied to body, html, etc.
+
+// Ensure html, body, and root elements take up full height
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: vars.$background-color; // Use the namespace to reference the variable
+}
+
+// Base body styles
+body {
+    font-size: vars.$base-font-size;
+    font-family: vars.$base-font-family;
+    background-color: vars.$background-color;
+    color: #333;
+    line-height: 1.5;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+// Base heading styles
+h1, h2, h3, h4, h5, h6 {
+    font-family: vars.$heading-font-family;
+    margin-bottom: vars.$spacing-m;
+}
+
+// Basic link styles
+a {
+    color: vars.$link-color;
+    transition: color 0.2s;
+
+    &:hover {
+      color: vars.$link-hover-color;
+    }
+}

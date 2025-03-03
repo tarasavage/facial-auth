@@ -24,6 +24,6 @@ class CreateUser(BaseUser):
 class UpdateUser(SQLModel):
     email: Optional[EmailStr] = None
     username: Optional[str] = None
-    password: Optional[str] = None
+    face_image_key: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)

@@ -24,7 +24,6 @@ class Settings(BaseSettings):
     AWS_COGNITO_CLIENT_ID: str
     AWS_COGNITO_CLIENT_SECRET: str
     AWS_COGNITO_USER_POOL_ID: str
-    AWS_COGNITO_JWKS_URL: str
 
     @property
     def DATABASE_URI(self) -> str:

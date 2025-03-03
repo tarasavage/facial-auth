@@ -1,0 +1,114 @@
+// src/styles/pages/_homepage.scss
+
+@use "sass:color";
+@use "../abstracts/variables" as vars;
+
+.home-page {
+  background-color: vars.$background-color; // Standard page background
+  font-family: vars.$base-font-family;
+  color: #333;
+  padding: vars.$spacing-xl;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 vars.$spacing-l;
+  }
+
+  .hero-section {
+    text-align: center;
+    margin-bottom: vars.$spacing-xl;
+
+    .hero-content {
+      max-width: 700px;
+      margin: 0 auto;
+
+      .hero-title {
+        font-family: vars.$heading-font-family;
+        font-size: 3rem;
+        color: #000; // Black text for the main title
+        margin-bottom: vars.$spacing-s;
+      }
+
+      .hero-subtitle {
+        font-size: 1.3rem;
+        margin-bottom: vars.$spacing-l;
+        color: #000; // Black text for subtitle
+      }
+
+      .cta-button {
+        background-color: vars.$secondary-color;
+        color: vars.$white-color;
+        padding: vars.$spacing-s vars.$spacing-l;
+        border: none;
+        border-radius: 8px;
+        font-size: vars.$base-font-size;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: color.adjust(vars.$secondary-color, $lightness: -10%);
+        }
+      }
+    }
+  }
+
+  .info-cards {
+    display: flex;
+    justify-content: space-around;
+    gap: vars.$spacing-l;
+    margin-bottom: vars.$spacing-xl;
+
+    .card {
+      background-color: color.adjust(vars.$background-color, $lightness: 5%); // Slightly lighter card background
+      padding: vars.$spacing-m;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px vars.$box-shadow-color;
+      flex: 1;
+      text-align: center;
+      max-width: 300px;
+
+      .card-icon {
+        font-size: 4rem;
+        color: vars.$primary-color;
+        margin-bottom: vars.$spacing-s;
+      }
+
+      h2 {
+        font-size: 1.6rem;
+        margin-bottom: vars.$spacing-xs;
+        font-weight: bold;
+      }
+
+      p {
+        font-size: 1rem;
+        color: #666;
+      }
+    }
+  }
+
+  .features {
+    display: flex;
+    flex-direction: column;
+    gap: vars.$spacing-l;
+
+    .feature {
+      padding: vars.$spacing-m;
+      border-left: 4px solid vars.$primary-color;
+      padding-left: vars.$spacing-l;
+      margin-bottom: vars.$spacing-l;
+
+      h3 {
+        font-size: 1.5rem;
+        color: #000; // Black text for "Customizable Dashboard"
+        margin-bottom: vars.$spacing-xs;
+      }
+
+      p {
+        font-size: 1.1rem;
+        color: #666;
+        line-height: 1.6;
+      }
+    }
+  }
+}

@@ -43,10 +43,8 @@ class SQLModelRepository(GenericRepository):
         obj = self.model(**data.model_dump())
         self.session.add(obj)
         await self.session.flush()
-        # TODO: remove this if it's not needed ???
-        # This avoid DetachedInstanceError: Instance <User at 0xffff86f15b30> is not bound to a Session; attribute refresh operation cannot proceed
         await self.session.refresh(obj)
-        self.session.expunge(obj)
+        # self.session.expunge(obj)
         return obj
 
     async def get(self, id: Any) -> T | None:
@@ -73,6 +71,13 @@ class SQLModelRepository(GenericRepository):
         )
         await self.session.flush()
         return obj.scalar_one_or_none()
+
+    async def filter(self, **kwargs: dict[str, Any]) -> list[T]:
+        conditions = [
+            getattr(self.model, key) == value for key, value in kwargs.items()
+        ]
+        obj = await self.session.execute(select(self.model).where(*conditions))
+        return obj.scalars().all()
 
     async def count(self) -> int:
         obj = await self.session.execute(select(func.count()).select_from(self.model))
