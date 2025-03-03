@@ -54,6 +54,8 @@ services:
     depends_on:
       fast-api:
         condition: service_started
+    volumes:
+      - ./frontend/src:/app/src
     ports:
       - "80:80"
     networks:

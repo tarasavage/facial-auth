@@ -7,7 +7,7 @@ from auth.exceptions import SignUpError
 from auth.repository import CognitoRepo, CognitoRepoDependency
 from core.db import SessionDependency
 from core.exceptions import UnitOfWorkError
-from core.unit_of_work import IUnitOfWork, UnitOfWork
+from core.unit_of_work import UnitOfWork
 from registration.exceptions import (
     FaceVerificationNotEnabledError,
     ServiceError,
@@ -32,7 +32,7 @@ MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 class RegistrationService:
     def __init__(
         self,
-        uow: IUnitOfWork,
+        uow: UnitOfWork,
         cognito_repo: CognitoRepo,
         users_repo: UsersRepository,
         rekognition_repo: RekognitionRepository,

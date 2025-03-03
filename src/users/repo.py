@@ -15,19 +15,7 @@ from core.repository import SQLModelRepository
 from users.model import User
 
 
-# TODO: move to core
-
-
-class IUnitOfWork(Protocol):
-    """Unit of work interface for database operations"""
-
-    async def __aenter__(self): ...
-    async def __aexit__(self, exc_type, exc_value, traceback): ...
-    async def commit(self): ...
-    async def rollback(self): ...
-
-
-class UsersUnitOfWork(IUnitOfWork):
+class UsersUnitOfWork:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.user_repo = UsersRepository(self.session)
