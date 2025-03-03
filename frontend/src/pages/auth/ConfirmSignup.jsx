@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { InputField } from "../../components/forms/InputField";
-import { PrimaryButton } from "../../components/buttons/PrimaryButton";
-import { FormMessage } from "../../components/forms/FormMessage";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import { InputField } from "@/components/forms/InputField";
+import { PrimaryButton } from "@/components/buttons/PrimaryButton";
+import { FormMessage } from "@/components/forms/FormMessage";
 
 export const ConfirmSignup = () => {
     const [email, setEmail] = useState('');

@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { InputField } from '../../components/forms/InputField';
-import { PrimaryButton } from '../../components/buttons/PrimaryButton';
-import { FormMessage } from '../../components/forms/FormMessage';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+
+import { InputField } from '@/components/forms/InputField';
+import { PrimaryButton } from '@/components/buttons/PrimaryButton';
+import { FormMessage } from '@/components/forms/FormMessage';
 
 export const Signin = () => {
     const [email, setEmail] = useState('');

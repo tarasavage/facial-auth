@@ -46,6 +46,19 @@ services:
     networks:
       - main-network
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      fast-api:
+        condition: service_started
+    ports:
+      - "80:80"
+    networks:
+      - main-network
+
 volumes:
   postgres_data:
 
