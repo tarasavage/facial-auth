@@ -7,6 +7,7 @@ from auth.utils import calculate_secret_hash
 from core.config import SettingsDependency
 from auth.exceptions import PasswordValidationError
 
+
 class CognitoRepo:
     """Repository class for AWS Cognito operations"""
 
@@ -45,7 +46,7 @@ class CognitoRepo:
             )
             return response
         except self._cognito_idp.exceptions.InvalidPasswordException as e:
-            error_message = e.response.get('Error', {}).get('Message', str(e))
+            error_message = e.response.get("Error", {}).get("Message", str(e))
             raise PasswordValidationError(error_message) from e
         except ClientError as e:
             raise e

@@ -7,9 +7,7 @@ from auth.exceptions import NotAuthorizedError
 from auth.schemas import Profile
 from auth.service import CognitoTokenServiceDependency
 
-BearerTokenDependency = Annotated[
-    HTTPAuthorizationCredentials, Depends(HTTPBearer())
-]
+BearerTokenDependency = Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]
 
 
 def validate_jwt_token(

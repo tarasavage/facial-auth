@@ -5,6 +5,7 @@ from pydantic import EmailStr
 from auth.token_service import CurrentUserDependency
 from registration.decorators import protected_route
 from registration.exceptions import ServiceError
+from registration.schemas import UserSignInCredentials
 from registration.services import RegistrationServiceDependency
 from users.schemas import CreateUser
 
@@ -51,12 +52,11 @@ async def confirm_signup(
 @router.post("/signin", status_code=status.HTTP_200_OK)
 @protected_route
 async def signin(
-    email: EmailStr,
-    password: str,
+    signin_data: UserSignInCredentials,
     registration_service: RegistrationServiceDependency,
 ) -> JSONResponse:
     """Authenticate user and return access tokens."""
-    tokens = await registration_service.signin(email, password)
+    tokens = await registration_service.signin(signin_data.email, signin_data.password)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={

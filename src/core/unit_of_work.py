@@ -10,16 +10,7 @@ from core.exceptions import UnitOfWorkError
 logger = logging.getLogger(__name__)
 
 
-class IUnitOfWork(Protocol):
-    """Unit of work interface for database operations"""
-
-    async def __aenter__(self): ...
-    async def __aexit__(self, exc_type, exc_value, traceback): ...
-    async def commit(self): ...
-    async def rollback(self): ...
-
-
-class UnitOfWork(IUnitOfWork):
+class UnitOfWork:
     def __init__(self, session: Session) -> None:
         self.session = session
 
@@ -30,8 +21,7 @@ class UnitOfWork(IUnitOfWork):
         if exc_type is not None:
             await self.rollback()
             logger.error(
-                "Transaction failed",
-                exc_info=(exc_type, exc_value, traceback)
+                "Transaction failed", exc_info=(exc_type, exc_value, traceback)
             )
             raise UnitOfWorkError(
                 f"Rolling back transaction due to exception: {exc_type.__name__} {exc_value}"

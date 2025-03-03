@@ -1,5 +1,4 @@
-from abc import ABC, abstractmethod
-from typing import Any, Generic, Type, TypeVar
+from typing import Any, Type, TypeVar
 
 from sqlalchemy import delete, exists, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,30 +7,7 @@ from sqlmodel import SQLModel, select
 T = TypeVar("T", bound=SQLModel)
 
 
-class GenericRepository(Generic[T], ABC):
-    @abstractmethod
-    async def create(self, data: T) -> T: ...
-
-    @abstractmethod
-    async def get(self, id: Any) -> T: ...
-
-    @abstractmethod
-    async def all(self) -> list[T]: ...
-
-    @abstractmethod
-    async def delete(self, id: Any) -> bool: ...
-
-    @abstractmethod
-    async def update(self, id: str, data: dict) -> dict: ...
-
-    @abstractmethod
-    async def count(self) -> int: ...
-
-    @abstractmethod
-    async def exists(self, id: str) -> bool: ...
-
-
-class SQLModelRepository(GenericRepository):
+class SQLModelRepository:
     """Base repository class for SQLModel entities"""
 
     model: Type[T]
@@ -39,12 +15,11 @@ class SQLModelRepository(GenericRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, data: T) -> T:
-        obj = self.model(**data.model_dump())
+    async def create(self, data: dict) -> T:
+        obj = self.model(**data)
         self.session.add(obj)
         await self.session.flush()
         await self.session.refresh(obj)
-        # self.session.expunge(obj)
         return obj
 
     async def get(self, id: Any) -> T | None:
@@ -62,11 +37,11 @@ class SQLModelRepository(GenericRepository):
         await self.session.flush()
         return obj.scalar_one_or_none() is not None
 
-    async def update(self, id: Any, data: T) -> T | None:
+    async def update(self, id: Any, data: dict) -> T | None:
         obj = await self.session.execute(
             update(self.model)
             .where(self.model.id == id)
-            .values(**data.model_dump())
+            .values(**data)
             .returning(self.model)
         )
         await self.session.flush()

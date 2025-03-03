@@ -83,9 +83,9 @@ class RegistrationService:
 
                 face_details = self._rekognition.detect_face_details(image)
                 self._validate_detected_face(face_details)
-
-                user_data = UpdateUser(face_image_key=user.s3_face_image_key)
-                await self._users.update(user.id, user_data)
+                await self._users.update(
+                    user.id, {"face_image_key": user.s3_face_image_key}
+                )
                 self._s3.upload_object(key=user.s3_face_image_key, file=image)
 
                 return {

@@ -38,9 +38,7 @@ class RekognitionRepository:
             self.client.exceptions.InvalidS3ObjectException,
             self.client.exceptions.ImageTooLargeException,
         ) as e:
-            raise FaceImageValidationError(
-                "Invalid image parameters or format"
-            ) from e
+            raise FaceImageValidationError("Invalid image parameters or format") from e
         except (
             self.client.exceptions.ProvisionedThroughputExceededException,
             self.client.exceptions.ThrottlingException,

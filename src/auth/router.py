@@ -54,9 +54,7 @@ async def signin(
     try:
         await users_service.get_user_by_email(user)
     except UserNotFoundError:
-        raise HTTPException(
-            status_code=401, detail="User has not been created yet"
-        )
+        raise HTTPException(status_code=401, detail="User has not been created yet")
 
     return JSONResponse(
         status_code=200,
