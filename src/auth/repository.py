@@ -92,16 +92,12 @@ class CognitoRepo:
         """Get user profile information"""
         try:
             response = self._cognito_idp.get_user(AccessToken=access_token)
-            user_attrs = {
-                attr["Name"]: attr["Value"] for attr in response["UserAttributes"]
-            }
+            user_attrs = {attr["Name"]: attr["Value"] for attr in response["UserAttributes"]}
             return {"username": response["Username"], "attributes": user_attrs}
         except ClientError as e:
             raise e
 
-    def change_password(
-        self, access_token: str, old_password: str, new_password: str
-    ) -> dict:
+    def change_password(self, access_token: str, old_password: str, new_password: str) -> dict:
         """Change user password"""
         try:
             response = self._cognito_idp.change_password(
@@ -116,16 +112,12 @@ class CognitoRepo:
     def forgot_password(self, username: str) -> dict:
         """Initiate forgot password flow"""
         try:
-            response = self._cognito_idp.forgot_password(
-                ClientId=self.client_id, Username=username
-            )
+            response = self._cognito_idp.forgot_password(ClientId=self.client_id, Username=username)
             return response
         except ClientError as e:
             raise e
 
-    def confirm_forgot_password(
-        self, username: str, code: str, new_password: str
-    ) -> dict:
+    def confirm_forgot_password(self, username: str, code: str, new_password: str) -> dict:
         """Complete forgot password flow"""
         try:
             response = self._cognito_idp.confirm_forgot_password(

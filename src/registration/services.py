@@ -15,6 +15,7 @@ from registration.exceptions import (
 from rekognition.exceptions import (
     FaceOccludedError,
     InvalidFaceCountError,
+    RekognitionError,
     SunglassesError,
 )
 from rekognition.repository import (
@@ -47,7 +48,7 @@ class RegistrationService:
     async def register_user(self, user_data: CreateUser):
         try:
             async with self._uow:
-                user = await self._users.create(user_data)
+                user = await self._users.create(user_data.model_dump())
 
                 try:
                     self._cognito.signup(user_data.email, user_data.password)
@@ -83,9 +84,7 @@ class RegistrationService:
 
                 face_details = self._rekognition.detect_face_details(image)
                 self._validate_detected_face(face_details)
-                await self._users.update(
-                    user.id, {"face_image_key": user.s3_face_image_key}
-                )
+                await self._users.update(user.id, {"face_image_key": user.s3_face_image_key})
                 self._s3.upload_object(key=user.s3_face_image_key, file=image)
 
                 return {
@@ -100,9 +99,7 @@ class RegistrationService:
         faces = face_details.get("FaceDetails", [])
 
         if number_of_faces := len(faces) != 1:
-            raise InvalidFaceCountError(
-                f"Image must contain exactly one face. Detected {number_of_faces} faces."
-            )
+            raise InvalidFaceCountError(f"Image must contain exactly one face. Detected {number_of_faces} faces.")
 
         face = faces[0]
         if face.get("Sunglasses", {}).get("Value"):
@@ -116,11 +113,11 @@ class RegistrationService:
             async with self._uow:
                 user = await self._users.get_by_email(email)
                 if not user.face_image_key:
-                    raise FaceVerificationNotEnabledError(
-                        "Face verification is not enabled for this user"
-                    )
-
-                self._rekognition.compare_faces(user.s3_face_image_key, image)
+                    raise FaceVerificationNotEnabledError("Face verification is not enabled for this user")
+                try:
+                    self._rekognition.compare_faces(user.s3_face_image_key, image)
+                except RekognitionError as e:
+                    raise ServiceError(f"Failed to verify face: {e}") from e
         except UnitOfWorkError as e:
             raise ServiceError(f"Failed to verify face: {e}") from e
 
@@ -140,9 +137,7 @@ def get_registration_service(
     )
 
 
-RegistrationServiceDependency = Annotated[
-    RegistrationService, Depends(get_registration_service)
-]
+RegistrationServiceDependency = Annotated[RegistrationService, Depends(get_registration_service)]
 
 
 def get_registration_service_2(

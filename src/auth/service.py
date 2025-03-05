@@ -69,9 +69,7 @@ class CognitoTokenService:
                 raise NotAuthorizedError("Token is invalid or expired")
             raise NotAuthorizedError(f"Failed to get user profile: {str(e)}")
 
-    def change_password(
-        self, access_token: str, old_password: str, new_password: str
-    ) -> dict:
+    def change_password(self, access_token: str, old_password: str, new_password: str) -> dict:
         """Change user password"""
         try:
             return self.repo.change_password(access_token, old_password, new_password)
@@ -91,9 +89,7 @@ class CognitoTokenService:
                 raise NotAuthorizedError("User not found")
             raise NotAuthorizedError(f"Failed to initiate password reset: {str(e)}")
 
-    def confirm_forgot_password(
-        self, username: str, code: str, new_password: str
-    ) -> dict:
+    def confirm_forgot_password(self, username: str, code: str, new_password: str) -> dict:
         """Complete forgot password process"""
         try:
             return self.repo.confirm_forgot_password(username, code, new_password)
@@ -112,6 +108,4 @@ def get_cognito_token_service(repo: CognitoRepoDependency) -> CognitoTokenServic
     return CognitoTokenService(repo)
 
 
-CognitoTokenServiceDependency = Annotated[
-    CognitoTokenService, Depends(get_cognito_token_service)
-]
+CognitoTokenServiceDependency = Annotated[CognitoTokenService, Depends(get_cognito_token_service)]

@@ -1,4 +1,4 @@
-from typing import Annotated, Protocol, Dict, Any
+from typing import Annotated, Dict, Any
 
 import sqlalchemy
 from fastapi import Depends

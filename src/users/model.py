@@ -11,4 +11,4 @@ class User(SQLModel, table=True):
 
     @property
     def s3_face_image_key(self) -> str:
-        return f"users/{self.id}/face.jpg"
+        return f"face_{self.id}.jpg"

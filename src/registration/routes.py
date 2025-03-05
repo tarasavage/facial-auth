@@ -40,9 +40,7 @@ async def confirm_signup(
 ) -> JSONResponse:
     """Confirm user registration with verification code."""
     try:
-        registration_service.confirm_signup(
-            email=confirm_signup_data.email, code=confirm_signup_data.code
-        )
+        registration_service.confirm_signup(email=confirm_signup_data.email, code=confirm_signup_data.code)
     except ServiceError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
@@ -81,14 +79,10 @@ async def register_user_face(
 ) -> JSONResponse:
     """Associate a user's face with their account."""
     image_bytes = await image.read()
-    response = await registration_service.register_user_face(
-        current_user.email, image_bytes
-    )
+    response = await registration_service.register_user_face(current_user.email, image_bytes)
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
-        content={
-            "message": response["message"],
-        },
+        content={"message": response["message"]},
     )
 
 

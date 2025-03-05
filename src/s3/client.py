@@ -8,9 +8,7 @@ from s3.exceptions import S3ClientError
 
 
 class S3Client:
-    def __init__(
-        self, aws_access_key_id: str, aws_secret_access_key: str, region_name: str
-    ):
+    def __init__(self, aws_access_key_id: str, aws_secret_access_key: str, region_name: str):
         try:
             self.client = client(
                 "s3",

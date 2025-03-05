@@ -34,6 +34,4 @@ def get_rekognition_service(
     return RekognitionService(repo)
 
 
-RekognitionServiceDependency = Annotated[
-    RekognitionService, Depends(get_rekognition_service)
-]
+RekognitionServiceDependency = Annotated[RekognitionService, Depends(get_rekognition_service)]

@@ -20,9 +20,7 @@ class UnitOfWork:
     async def __aexit__(self, exc_type, exc_value, traceback):
         if exc_type is not None:
             await self.rollback()
-            logger.error(
-                "Transaction failed", exc_info=(exc_type, exc_value, traceback)
-            )
+            logger.error("Transaction failed", exc_info=(exc_type, exc_value, traceback))
             raise UnitOfWorkError(
                 f"Rolling back transaction due to exception: {exc_type.__name__} {exc_value}"
             ) from exc_value

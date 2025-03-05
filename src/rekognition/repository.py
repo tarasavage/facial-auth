@@ -7,13 +7,14 @@ from rekognition.exceptions import (
     FaceImageValidationError,
     RekognitionClientError,
     RekognitionLimitExceededError,
+    InvalidS3ObjectError,
 )
 
 
 class RekognitionRepository:
     def __init__(self, rekognition_client: RekognitionClient):
         self.client = rekognition_client
-        self.bucket_name = "facelinq"
+        self.bucket_name = "linqqq"
 
     def compare_faces(
         self,
@@ -25,13 +26,15 @@ class RekognitionRepository:
             return self.client.compare_faces(
                 SourceImage={
                     "S3Object": {
-                        "Bucket": self.bucket_name,
+                        "Bucket": "linqqq",
                         "Name": source_image_key,
                     }
                 },
                 TargetImage={"Bytes": target_image},
                 SimilarityThreshold=similarity_threshold,
             )
+        except self.client.exceptions.InvalidS3ObjectException as e:
+            raise InvalidS3ObjectError("Invalid S3 object") from e
         except (
             self.client.exceptions.InvalidImageFormatException,
             self.client.exceptions.InvalidParameterException,
@@ -44,13 +47,9 @@ class RekognitionRepository:
             self.client.exceptions.ThrottlingException,
             self.client.exceptions.InternalServerError,
         ) as e:
-            raise RekognitionLimitExceededError(
-                "Failed to send request to Rekognition"
-            ) from e
+            raise RekognitionLimitExceededError("Failed to send request to Rekognition") from e
         except self.client.exceptions.AccessDeniedException as e:
-            raise RekognitionLimitExceededError(
-                "Access denied to Rekognition service"
-            ) from e
+            raise RekognitionLimitExceededError("Access denied to Rekognition service") from e
 
     def detect_face_details(self, image: bytes) -> dict:
         try:
@@ -68,6 +67,4 @@ def get_rekognition_repository(
     return RekognitionRepository(client)
 
 
-RekognitionRepositoryDependency = Annotated[
-    RekognitionRepository, Depends(get_rekognition_repository)
-]
+RekognitionRepositoryDependency = Annotated[RekognitionRepository, Depends(get_rekognition_repository)]

@@ -19,6 +19,4 @@ def get_rekognition_settings() -> RekognitionSettings:
     return RekognitionSettings()
 
 
-RekognitionSettingsDependency = Annotated[
-    RekognitionSettings, Depends(get_rekognition_settings)
-]
+RekognitionSettingsDependency = Annotated[RekognitionSettings, Depends(get_rekognition_settings)]

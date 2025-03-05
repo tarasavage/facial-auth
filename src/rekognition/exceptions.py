@@ -32,3 +32,7 @@ class FaceOccludedError(FaceValidationError):
 
 class SunglassesError(FaceValidationError):
     """Exception raised when the face is wearing sunglasses."""
+
+
+class InvalidS3ObjectError(RekognitionError):
+    """Exception raised when the S3 object is invalid or cannot be fetched."""
