@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { FormMessage } from "../../components/forms/FormMessage";
-import { InputField } from "../../components/forms/InputField";
-import { PrimaryButton } from "../../components/buttons/PrimaryButton";
+import { FormMessage } from "@/components/forms/FormMessage";
+import { InputField } from "@/components/forms/InputField";
+import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 
-export const SignUp = () => {
+export const Signup = () => {
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");

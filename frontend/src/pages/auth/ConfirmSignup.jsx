@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { InputField } from "../../components/forms/InputField";
-import { PrimaryButton } from "../../components/buttons/PrimaryButton";
-import { FormMessage } from "../../components/forms/FormMessage";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import { InputField } from "@/components/forms/InputField";
+import { PrimaryButton } from "@/components/buttons/PrimaryButton";
+import { FormMessage } from "@/components/forms/FormMessage";
 
 export const ConfirmSignup = () => {
     const [email, setEmail] = useState('');
@@ -20,11 +21,12 @@ export const ConfirmSignup = () => {
         e.preventDefault();
         const apiUrl = 'http://0.0.0.0:8000';
         try {
-            const response = await fetch(`${apiUrl}/registration/confirm_signup?email=${email}&code=${code}`, {
+            const response = await fetch(`${apiUrl}/registration/confirm_signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                body: JSON.stringify({ email, code })
             });
             const data = await response.json();
             if (!response.ok) {

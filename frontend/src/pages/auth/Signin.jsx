@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { InputField } from '../../components/forms/InputField';
-import { PrimaryButton } from '../../components/buttons/PrimaryButton';
-import { FormMessage } from '../../components/forms/FormMessage';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+
+import { InputField } from '@/components/forms/InputField';
+import { PrimaryButton } from '@/components/buttons/PrimaryButton';
+import { FormMessage } from '@/components/forms/FormMessage';
 
 export const Signin = () => {
     const [email, setEmail] = useState('');
@@ -30,10 +30,12 @@ export const Signin = () => {
                 body: JSON.stringify({ email, password })
             });
             const data = await response.json();
-            if (!response.ok) {
-                setError(data.detail || 'Failed to signin');
+            if (response.status === 200) {
+                navigate('/', { state: { email } });
+            } else {
+                setError(data.detail[0].msg || 'Failed to signin');
+                return;
             }
-            navigate('/', { state: { email } });
         } catch (error) {
             const message = error || "An error occurred during signin. Please try again.";
             setError(message);

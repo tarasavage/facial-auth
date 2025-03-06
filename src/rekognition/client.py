@@ -8,9 +8,7 @@ from rekognition.exceptions import RekognitionClientError
 
 
 class RekognitionClient:
-    def __init__(
-        self, aws_access_key_id: str, aws_secret_access_key: str, region_name: str
-    ):
+    def __init__(self, aws_access_key_id: str, aws_secret_access_key: str, region_name: str):
         try:
             self.client = client(
                 "rekognition",
@@ -19,9 +17,7 @@ class RekognitionClient:
                 aws_secret_access_key=aws_secret_access_key,
             )
         except ClientError as e:
-            raise RekognitionClientError(
-                "Failed to initialize Rekognition client"
-            ) from e
+            raise RekognitionClientError("Failed to initialize Rekognition client") from e
 
     @classmethod
     def from_settings(cls, settings) -> "RekognitionClient":
@@ -39,6 +35,4 @@ def get_rekognition_client(
     return RekognitionClient.from_settings(settings).client
 
 
-RekognitionClientDependency = Annotated[
-    RekognitionClient, Depends(get_rekognition_client)
-]
+RekognitionClientDependency = Annotated[RekognitionClient, Depends(get_rekognition_client)]

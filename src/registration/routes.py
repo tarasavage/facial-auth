@@ -1,10 +1,13 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
-from pydantic import EmailStr
 
 from auth.token_service import CurrentUserDependency
 from registration.decorators import protected_route
 from registration.exceptions import ServiceError
+from registration.schemas import (
+    UserConfirmSignupCredentials,
+    UserSignInCredentials,
+)
 from registration.services import RegistrationServiceDependency
 from users.schemas import CreateUser
 
@@ -32,13 +35,12 @@ async def register_user(
 @router.post("/confirm_signup", status_code=status.HTTP_200_OK)
 @protected_route
 async def confirm_signup(
-    email: EmailStr,
-    code: str,
+    confirm_signup_data: UserConfirmSignupCredentials,
     registration_service: RegistrationServiceDependency,
 ) -> JSONResponse:
     """Confirm user registration with verification code."""
     try:
-        registration_service.confirm_signup(email, code)
+        registration_service.confirm_signup(email=confirm_signup_data.email, code=confirm_signup_data.code)
     except ServiceError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
@@ -51,12 +53,11 @@ async def confirm_signup(
 @router.post("/signin", status_code=status.HTTP_200_OK)
 @protected_route
 async def signin(
-    email: EmailStr,
-    password: str,
+    signin_data: UserSignInCredentials,
     registration_service: RegistrationServiceDependency,
 ) -> JSONResponse:
     """Authenticate user and return access tokens."""
-    tokens = await registration_service.signin(email, password)
+    tokens = await registration_service.signin(signin_data.email, signin_data.password)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
@@ -78,14 +79,10 @@ async def register_user_face(
 ) -> JSONResponse:
     """Associate a user's face with their account."""
     image_bytes = await image.read()
-    response = await registration_service.register_user_face(
-        current_user.email, image_bytes
-    )
+    response = await registration_service.register_user_face(current_user.email, image_bytes)
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
-        content={
-            "message": response["message"],
-        },
+        content={"message": response["message"]},
     )
 
 

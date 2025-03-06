@@ -1,4 +1,4 @@
-from typing import Annotated, Protocol
+from typing import Annotated, Dict, Any
 
 import sqlalchemy
 from fastapi import Depends
@@ -15,19 +15,7 @@ from core.repository import SQLModelRepository
 from users.model import User
 
 
-# TODO: move to core
-
-
-class IUnitOfWork(Protocol):
-    """Unit of work interface for database operations"""
-
-    async def __aenter__(self): ...
-    async def __aexit__(self, exc_type, exc_value, traceback): ...
-    async def commit(self): ...
-    async def rollback(self): ...
-
-
-class UsersUnitOfWork(IUnitOfWork):
+class UsersUnitOfWork:
     def __init__(self, session: Session) -> None:
         self.session = session
         self.user_repo = UsersRepository(self.session)
@@ -48,7 +36,7 @@ class UsersUnitOfWork(IUnitOfWork):
 class UsersRepository(SQLModelRepository):
     model = User
 
-    async def create(self, data: User) -> User:
+    async def create(self, data: Dict[str, Any]) -> User:
         try:
             return await super().create(data)
         except sqlalchemy.exc.IntegrityError as e:
@@ -60,7 +48,7 @@ class UsersRepository(SQLModelRepository):
             raise UserNotFoundError("User with id {id} is not found")
         return user
 
-    async def update(self, id: int, data: User) -> User:
+    async def update(self, id: int, data: Dict[str, Any]) -> User:
         try:
             user = await super().update(id, data)
             if user is None:
