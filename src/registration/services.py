@@ -24,6 +24,7 @@ from rekognition.repository import (
 )
 from s3.exceptions import ImageTooLargeError
 from s3.service import S3Service, S3ServiceDependency
+from users.exception import UserNotFoundError
 from users.repo import UsersRepository
 from users.schemas import CreateUser
 
@@ -45,6 +46,19 @@ class RegistrationService:
         self._rekognition = rekognition_repo
         self._s3 = s3_repo
 
+    async def get_user_profile(self, email: str) -> dict:
+        try:
+            async with self._uow:
+                try:
+                    user = await self._users.get_by_email(email)
+                except UserNotFoundError as e:
+                    raise ServiceError("Requested user not found") from e
+
+                return user.model_dump()
+
+        except UnitOfWorkError as e:
+            raise ServiceError(f"Failed to get user profile: {e}") from e
+
     async def register_user(self, user_data: CreateUser):
         try:
             async with self._uow:
@@ -59,11 +73,22 @@ class RegistrationService:
         except UnitOfWorkError as e:
             raise ServiceError(f"Failed to register user: {e}") from e
 
-    def confirm_signup(self, email: str, code: str):
+    async def confirm_signup(self, email: str, code: str) -> None:
         try:
-            self._cognito.confirm_signup(email, code)
-        except ClientError as e:
-            raise ServiceError(f"Failed to confirm signup: {e}") from e
+            async with self._uow:
+                user = await self._users.get_by_email(email)
+                if user.email_verified:
+                    raise ServiceError("User has already been confirmed")
+
+                await self._users.update(user.id, {"email_verified": True})
+
+                try:
+                    self._cognito.confirm_signup(email, code)
+                except ClientError as e:
+                    raise ServiceError(f"AWS Cognito confirmation failed: {e}") from e
+
+        except UnitOfWorkError as e:
+            raise ServiceError(f"Database error during signup confirmation: {e}") from e
 
     async def signin(self, email: str, password: str) -> dict:
         try:
@@ -71,6 +96,7 @@ class RegistrationService:
                 await self._users.get_by_email(email)
                 tokens = self._cognito.signin(email, password)
                 return tokens
+
         except UnitOfWorkError as e:
             raise ServiceError(f"Failed to signin: {e}") from e
 
@@ -80,10 +106,14 @@ class RegistrationService:
 
         try:
             async with self._uow:
-                user = await self._users.get_by_email(email)
+                try:
+                    user = await self._users.get_by_email(email)
+                except UserNotFoundError as e:
+                    raise ServiceError("Requested user not found") from e
 
                 face_details = self._rekognition.detect_face_details(image)
                 self._validate_detected_face(face_details)
+
                 await self._users.update(user.id, {"face_image_key": user.s3_face_image_key})
                 self._s3.upload_object(key=user.s3_face_image_key, file=image)
 
@@ -114,10 +144,12 @@ class RegistrationService:
                 user = await self._users.get_by_email(email)
                 if not user.face_image_key:
                     raise FaceVerificationNotEnabledError("Face verification is not enabled for this user")
+
                 try:
                     self._rekognition.compare_faces(user.s3_face_image_key, image)
                 except RekognitionError as e:
                     raise ServiceError(f"Failed to verify face: {e}") from e
+
         except UnitOfWorkError as e:
             raise ServiceError(f"Failed to verify face: {e}") from e
 

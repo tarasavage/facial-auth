@@ -8,6 +8,7 @@ class User(SQLModel, table=True):
     username: str = Field(sa_column=Column(String, unique=True))
     email: str = Field(sa_column=Column(String, unique=True))
     face_image_key: str | None = Field(sa_column=Column(String, unique=True))
+    email_verified: bool = Field(default=False, sa_column_kwargs={"server_default": "false"})
 
     @property
     def s3_face_image_key(self) -> str:

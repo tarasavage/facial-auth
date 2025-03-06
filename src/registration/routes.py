@@ -40,7 +40,7 @@ async def confirm_signup(
 ) -> JSONResponse:
     """Confirm user registration with verification code."""
     try:
-        registration_service.confirm_signup(email=confirm_signup_data.email, code=confirm_signup_data.code)
+        await registration_service.confirm_signup(email=confirm_signup_data.email, code=confirm_signup_data.code)
     except ServiceError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
@@ -93,9 +93,26 @@ async def verify_face(
     current_user: CurrentUserDependency,
     image: UploadFile = File(...),
 ) -> JSONResponse:
+    if not current_user.email_verified:
+        raise HTTPException(status_code=400, detail="Email not verified")
+
     image_bytes = await image.read()
     await registration_service.verify_face(current_user.email, image_bytes)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"message": "Face verified successfully"},
+    )
+
+
+@router.get("/me", status_code=status.HTTP_200_OK)
+@protected_route
+async def get_user_profile(
+    registration_service: RegistrationServiceDependency,
+    current_user: CurrentUserDependency,
+) -> JSONResponse:
+    user_profile = await registration_service.get_user_profile(current_user.email)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=user_profile,
     )
