@@ -1,16 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { InputField } from '@/components/forms/InputField';
 import { PrimaryButton } from '@/components/buttons/PrimaryButton';
 import { FormMessage } from '@/components/forms/FormMessage';
+import { AuthContext } from '@/context/AuthContext';
 
 export const Signin = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
+    const { login } = useContext(AuthContext);
+
     useEffect(() => {
         if (location.state && location.state.email) {
             setEmail(location.state.email);
@@ -19,27 +23,33 @@ export const Signin = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const apiUrl = 'http://0.0.0.0:8000';
-
+        
         try {
-            const response = await fetch(`${apiUrl}/registration/signin`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email, password })
-            });
-            const data = await response.json();
-            if (response.status === 200) {
-                navigate('/', { state: { email } });
+            const result = await login({ email, password });
+      
+            if (result && result.success) {
+              setMessage('Login successful.');
+              setMessageType('success');
+              setTimeout(() => {
+                navigate('/me');
+              }, 3000); // Show the success message for 3 seconds before redirecting
             } else {
-                setError(data.detail[0].msg || 'Failed to signin');
-                return;
+              if (result.status === 403 && result.message.includes("Email not verified")) {
+                setMessage(result.message);
+                setMessageType('success');
+              } else if (result.status === 401) {
+                setMessage('Invalid username or password. Please try again.');
+                setMessageType('error');
+              } else {
+                setMessage('Login failed. Please try again later.');
+                setMessageType('error');
+              }
             }
-        } catch (error) {
-            const message = error || "An error occurred during signin. Please try again.";
-            setError(message);
-        }
+          } catch (error) {
+            setMessage('Login failed due to a server error.');
+            setMessageType('error');
+            console.log(error);
+          }
     }
 
 
@@ -47,7 +57,7 @@ export const Signin = () => {
         <div className="form">
             <div className="form__box modal">
                 <h2 className="form__title">Signin</h2>
-                <FormMessage message={error} isError={true} />
+                <FormMessage message={message} isError={messageType === 'error'} />
                 <form onSubmit={handleSubmit}>
                     <InputField
                         label="Email"
