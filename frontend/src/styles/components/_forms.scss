@@ -94,20 +94,22 @@
     font-size: 16px;
     background-color: #f9f9f9;
     color: #333;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    transition:
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
 
     &:focus {
       border-color: vars.$primary-color;
       box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
       outline: none;
     }
-    
+
     &--disabled {
       background-color: #e8e8e8;
       color: #777;
       cursor: not-allowed;
       border-color: #ccc;
-      
+
       &:hover,
       &:focus {
         border-color: #ccc;

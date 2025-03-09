@@ -47,7 +47,10 @@
         transition: background-color 0.3s ease;
 
         &:hover {
-          background-color: color.adjust(vars.$secondary-color, $lightness: -10%);
+          background-color: color.adjust(
+            vars.$secondary-color,
+            $lightness: -10%
+          );
         }
       }
     }
@@ -60,7 +63,10 @@
     margin-bottom: vars.$spacing-xl;
 
     .card {
-      background-color: color.adjust(vars.$background-color, $lightness: 5%); // Slightly lighter card background
+      background-color: color.adjust(
+        vars.$background-color,
+        $lightness: 5%
+      ); // Slightly lighter card background
       padding: vars.$spacing-m;
       border-radius: 8px;
       box-shadow: 0 4px 8px vars.$box-shadow-color;

@@ -1,5 +1,6 @@
-import { Outlet } from 'react-router-dom';
-import { AuthProvider } from '@/context/AuthContext';
+import { Outlet } from "react-router-dom";
+
+import { AuthProvider } from "@/context/AuthContext";
 
 export const RootLayout = () => {
   return (
@@ -7,4 +8,4 @@ export const RootLayout = () => {
       <Outlet />
     </AuthProvider>
   );
-}; 
+};
