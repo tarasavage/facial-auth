@@ -2,14 +2,14 @@ from typing import Annotated
 from fastapi import Depends
 from botocore.exceptions import ClientError
 
-from auth.exceptions import (
+from cognito.exceptions import (
     ConfirmSignupError,
     ExpiredCodeError,
     InvalidPasswordError,
     NotAuthorizedError,
     SignUpError,
 )
-from auth.repository import CognitoRepoDependency
+from cognito.repository import CognitoRepoDependency
 
 
 class CognitoTokenService:

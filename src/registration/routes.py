@@ -1,7 +1,7 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
 
-from auth.token_service import CurrentUserDependency
+from cognito.user_dependency import CurrentUserDependency
 from registration.decorators import protected_route
 from registration.exceptions import ServiceError
 from registration.schemas import (
@@ -57,7 +57,16 @@ async def signin(
     registration_service: RegistrationServiceDependency,
 ) -> JSONResponse:
     """Authenticate user and return access tokens."""
-    tokens = await registration_service.signin(signin_data.email, signin_data.password)
+    unauthorized_error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid credentials",
+    )
+
+    try:
+        tokens = await registration_service.signin(signin_data.email, signin_data.password)
+    except ServiceError as e:
+        raise unauthorized_error from e
+
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={

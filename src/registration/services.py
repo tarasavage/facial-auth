@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from botocore.exceptions import ClientError
 from fastapi import Depends
 
-from auth.exceptions import SignUpError
-from auth.repository import CognitoRepo, CognitoRepoDependency
+import cognito.exceptions as cognito_exceptions
+import rekognition.exceptions as rekognition_exceptions
+import s3.exceptions as s3_exceptions
+from cognito.service import CognitoTokenServiceDependency
 from core.db import SessionDependency
 from core.exceptions import UnitOfWorkError
 from core.unit_of_work import UnitOfWork
@@ -12,17 +13,10 @@ from registration.exceptions import (
     FaceVerificationNotEnabledError,
     ServiceError,
 )
-from rekognition.exceptions import (
-    FaceOccludedError,
-    InvalidFaceCountError,
-    RekognitionError,
-    SunglassesError,
-)
 from rekognition.repository import (
     RekognitionRepository,
     RekognitionRepositoryDependency,
 )
-from s3.exceptions import ImageTooLargeError
 from s3.service import S3Service, S3ServiceDependency
 from users.exception import UserNotFoundError
 from users.repo import UsersRepository
@@ -35,13 +29,13 @@ class RegistrationService:
     def __init__(
         self,
         uow: UnitOfWork,
-        cognito_repo: CognitoRepo,
+        cognito_service: CognitoTokenServiceDependency,
         users_repo: UsersRepository,
         rekognition_repo: RekognitionRepository,
         s3_repo: S3Service,
     ):
         self._uow = uow
-        self._cognito = cognito_repo
+        self._cognito = cognito_service
         self._users = users_repo
         self._rekognition = rekognition_repo
         self._s3 = s3_repo
@@ -66,7 +60,7 @@ class RegistrationService:
 
                 try:
                     self._cognito.signup(user_data.email, user_data.password)
-                except SignUpError as e:
+                except cognito_exceptions.SignUpError as e:
                     raise ServiceError(f"Cognito signup failed: {e}") from e
 
                 return user
@@ -84,7 +78,7 @@ class RegistrationService:
 
                 try:
                     self._cognito.confirm_signup(email, code)
-                except ClientError as e:
+                except cognito_exceptions.AuthError as e:
                     raise ServiceError(f"AWS Cognito confirmation failed: {e}") from e
 
         except UnitOfWorkError as e:
@@ -93,8 +87,16 @@ class RegistrationService:
     async def signin(self, email: str, password: str) -> dict:
         try:
             async with self._uow:
-                await self._users.get_by_email(email)
-                tokens = self._cognito.signin(email, password)
+                try:
+                    await self._users.get_by_email(email)
+                except UserNotFoundError as e:
+                    raise ServiceError(f"User ({email}) not found") from e
+
+                try:
+                    tokens = self._cognito.signin(email, password)
+                except cognito_exceptions.AuthError as e:
+                    raise ServiceError(f"AWS Cognito signin failed: {e}") from e
+
                 return tokens
 
         except UnitOfWorkError as e:
@@ -102,7 +104,7 @@ class RegistrationService:
 
     async def register_user_face(self, email: str, image: bytes):
         if len(image) > MAX_IMAGE_SIZE:
-            raise ImageTooLargeError("Image is too large")
+            raise s3_exceptions.ImageTooLargeError("Image is too large")
 
         try:
             async with self._uow:
@@ -129,14 +131,16 @@ class RegistrationService:
         faces = face_details.get("FaceDetails", [])
 
         if number_of_faces := len(faces) != 1:
-            raise InvalidFaceCountError(f"Image must contain exactly one face. Detected {number_of_faces} faces.")
+            raise rekognition_exceptions.InvalidFaceCountError(
+                f"Image must contain exactly one face. Detected {number_of_faces} faces."
+            )
 
         face = faces[0]
         if face.get("Sunglasses", {}).get("Value"):
-            raise SunglassesError("Face image cannot contain sunglasses.")
+            raise rekognition_exceptions.SunglassesError("Face image cannot contain sunglasses.")
 
         if face.get("FaceOccluded", {}).get("Value"):
-            raise FaceOccludedError("Face image cannot be occluded.")
+            raise rekognition_exceptions.FaceOccludedError("Face image cannot be occluded.")
 
     async def verify_face(self, email: str, image: bytes):
         try:
@@ -147,7 +151,7 @@ class RegistrationService:
 
                 try:
                     self._rekognition.compare_faces(user.s3_face_image_key, image)
-                except RekognitionError as e:
+                except rekognition_exceptions.RekognitionError as e:
                     raise ServiceError(f"Failed to verify face: {e}") from e
 
         except UnitOfWorkError as e:
@@ -156,13 +160,13 @@ class RegistrationService:
 
 def get_registration_service(
     session: SessionDependency,
-    cognito_repo: CognitoRepoDependency,
+    cognito_service: CognitoTokenServiceDependency,
     rekognition_repo: RekognitionRepositoryDependency,
     s3_repo: S3ServiceDependency,
 ) -> RegistrationService:
     return RegistrationService(
         uow=UnitOfWork(session),
-        cognito_repo=cognito_repo,
+        cognito_service=cognito_service,
         users_repo=UsersRepository(session),
         rekognition_repo=rekognition_repo,
         s3_repo=s3_repo,
@@ -170,18 +174,3 @@ def get_registration_service(
 
 
 RegistrationServiceDependency = Annotated[RegistrationService, Depends(get_registration_service)]
-
-
-def get_registration_service_2(
-    session: SessionDependency,
-    cognito_repo: CognitoRepoDependency,
-    rekognition_repo: RekognitionRepositoryDependency,
-    s3_repo: S3ServiceDependency,
-) -> RegistrationService:
-    return RegistrationService(
-        uow=UnitOfWork(session),
-        cognito_repo=cognito_repo,
-        users_repo=UsersRepository(session),
-        rekognition_repo=rekognition_repo,
-        s3_repo=s3_repo,
-    )

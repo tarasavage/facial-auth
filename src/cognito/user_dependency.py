@@ -3,9 +3,9 @@ from typing import Annotated
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from auth.exceptions import NotAuthorizedError
-from auth.schemas import Profile
-from auth.service import CognitoTokenServiceDependency
+from cognito.exceptions import NotAuthorizedError
+from cognito.schemas import Profile
+from cognito.service import CognitoTokenServiceDependency
 
 BearerTokenDependency = Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]
 
