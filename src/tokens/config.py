@@ -3,11 +3,16 @@ from pathlib import Path
 from pydantic import BaseModel
 
 
+BASE_DIR = Path(__file__).resolve().parent
+
+
 class TokenConfig(BaseModel):
-    private_key_path: Path = Path("certs/private_key.pem")
-    public_key_path: Path = Path("certs/public_key.pem")
-    algorithm: str = "RS256"
-    access_token_expires_in_seconds: int = 3600
+    PRIVATE_KEY_PATH: Path = BASE_DIR / "certs" / "private_key.pem"
+    PUBLIC_KEY_PATH: Path = BASE_DIR / "certs" / "public_key.pem"
+    ALGORITHM: str = "RS256"
+
+    ACCESS_TOKEN_EXPIRES_IN_SECONDS: int = 3600  # 1 hour
+    REFRESH_TOKEN_EXPIRES_IN_SECONDS: int = 604800  # 1 week
 
 
-JWT_SETTINGS = TokenConfig()
+JWT = TokenConfig()

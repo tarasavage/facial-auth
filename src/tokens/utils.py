@@ -2,14 +2,24 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 
-from tokens.config import JWT_SETTINGS
+from tokens.config import JWT
+
+
+def create_access_token(payload: dict) -> str:
+    payload.update(token_type="access")
+    return encode_jwt(payload, expires_in=JWT.ACCESS_TOKEN_EXPIRES_IN_SECONDS)
+
+
+def create_refresh_token(payload: dict) -> str:
+    payload.update(token_type="refresh")
+    return encode_jwt(payload, expires_in=JWT.REFRESH_TOKEN_EXPIRES_IN_SECONDS)
 
 
 def encode_jwt(
     payload: dict,
-    key: str = JWT_SETTINGS.private_key_path.read_text(),
-    algorithm: str = JWT_SETTINGS.algorithm,
-    expires_in: int = JWT_SETTINGS.access_token_expires_in_seconds,
+    key: str = JWT.PRIVATE_KEY_PATH.read_text(),
+    algorithm: str = JWT.ALGORITHM,
+    expires_in: int = JWT.ACCESS_TOKEN_EXPIRES_IN_SECONDS,
 ) -> str:
     """Encode JWT token using private key and algorithm"""
     to_encode = payload.copy()
@@ -23,8 +33,8 @@ def encode_jwt(
 
 def decode_jwt(
     token: str | bytes,
-    key: str = JWT_SETTINGS.public_key_path.read_text(),
-    algorithm: str = JWT_SETTINGS.algorithm,
+    key: str = JWT.PUBLIC_KEY_PATH.read_text(),
+    algorithm: str = JWT.ALGORITHM,
 ) -> dict:
     """Decode JWT token using public key and algorithm"""
     if not algorithm or algorithm.lower() == "none":

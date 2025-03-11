@@ -5,6 +5,7 @@ from fastapi import Depends
 import cognito.exceptions as cognito_exceptions
 import rekognition.exceptions as rekognition_exceptions
 import s3.exceptions as s3_exceptions
+import tokens
 from cognito.service import CognitoTokenServiceDependency
 from core.db import SessionDependency
 from core.exceptions import UnitOfWorkError
@@ -119,13 +120,30 @@ class RegistrationService:
                 await self._users.update(user.id, {"face_image_key": user.s3_face_image_key})
                 self._s3.upload_object(key=user.s3_face_image_key, file=image)
 
+                tokens = self.generate_jwt_tokens(
+                    payload={
+                        "sub": user.id,
+                        "email": user.email,
+                        "email_verified": user.email_verified,
+                        "face_image_key": user.s3_face_image_key,
+                    }
+                )
+
                 return {
                     "status": "success",
                     "message": "User face registered successfully",
+                    **tokens,
                 }
 
         except UnitOfWorkError as e:
             raise ServiceError(f"Failed to register user face: {e}") from e
+
+    def generate_jwt_tokens(self, payload: dict) -> dict:
+        return {
+            "access_token": tokens.create_access_token(payload),
+            "refresh_token": tokens.create_refresh_token(payload),
+            "expires_in": tokens.JWT.ACCESS_TOKEN_EXPIRES_IN_SECONDS,
+        }
 
     def _validate_detected_face(self, face_details: dict):
         faces = face_details.get("FaceDetails", [])

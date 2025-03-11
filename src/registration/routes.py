@@ -5,6 +5,7 @@ from cognito.user_dependency import CurrentUserDependency
 from registration.decorators import protected_route
 from registration.exceptions import ServiceError
 from registration.schemas import (
+    RegisterUserFaceResponse,
     UserConfirmSignupCredentials,
     UserSignInCredentials,
 )
@@ -85,14 +86,11 @@ async def register_user_face(
     registration_service: RegistrationServiceDependency,
     current_user: CurrentUserDependency,
     image: UploadFile = File(...),
-) -> JSONResponse:
+) -> RegisterUserFaceResponse:
     """Associate a user's face with their account."""
     image_bytes = await image.read()
     response = await registration_service.register_user_face(current_user.email, image_bytes)
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"message": response["message"]},
-    )
+    return RegisterUserFaceResponse(**response)
 
 
 @router.post("/verify_face", status_code=status.HTTP_200_OK)
