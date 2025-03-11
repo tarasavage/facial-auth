@@ -45,17 +45,3 @@ def decode_jwt(
             "require": ["exp", "iat", "sub"],
         },
     )
-
-
-test_payload = {
-    "sub": "1234567890",
-    "email": "test@test.com",
-}
-
-
-if __name__ == "__main__":
-    test_token = encode_jwt(test_payload)
-    print(test_token)
-
-    test_decoded = decode_jwt(test_token)
-    print(test_decoded)

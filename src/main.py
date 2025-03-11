@@ -13,10 +13,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.include_router(users_router, prefix="/users")
-# app.include_router(auth_router, prefix="")
-# app.include_router(rekognition_router, prefix="")
-
 app.include_router(registration_router, prefix="/registration")
 
 
