@@ -37,11 +37,14 @@ def decode_jwt(
     algorithm: str = JWT.ALGORITHM,
 ) -> dict:
     """Decode JWT token using public key and algorithm"""
-    if not algorithm or algorithm.lower() == "none":
-        raise ValueError("Secure algorithm is required")
+    if not isinstance(token, (str, bytes)):
+        raise ValueError("Token must be a string or bytes")
 
-    if isinstance(algorithm, list):
-        raise ValueError("Algorithm must be a string, not a list")
+    if not isinstance(algorithm, str):
+        raise ValueError("Algorithm must be a string")
+
+    if algorithm.lower() == "none":
+        raise ValueError("Secure algorithm is required")
 
     return jwt.decode(
         token,

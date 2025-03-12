@@ -79,3 +79,9 @@ dependencies = [
     # Like Black, automatically detect the appropriate line ending.
     line-ending = "auto"
 
+[dependency-groups]
+test = [
+    "pytest>=8.3.5",
+    "pytest-cov>=6.0.0",
+]
+
