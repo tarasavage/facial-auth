@@ -1,10 +1,11 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from fastapi.responses import JSONResponse
 
-from auth.token_service import CurrentUserDependency
+from cognito.user_dependency import CurrentUserDependency
 from registration.decorators import protected_route
 from registration.exceptions import ServiceError
 from registration.schemas import (
+    RegisterUserFaceResponse,
     UserConfirmSignupCredentials,
     UserSignInCredentials,
 )
@@ -40,7 +41,7 @@ async def confirm_signup(
 ) -> JSONResponse:
     """Confirm user registration with verification code."""
     try:
-        registration_service.confirm_signup(email=confirm_signup_data.email, code=confirm_signup_data.code)
+        await registration_service.confirm_signup(email=confirm_signup_data.email, code=confirm_signup_data.code)
     except ServiceError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
@@ -57,7 +58,16 @@ async def signin(
     registration_service: RegistrationServiceDependency,
 ) -> JSONResponse:
     """Authenticate user and return access tokens."""
-    tokens = await registration_service.signin(signin_data.email, signin_data.password)
+    unauthorized_error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid credentials",
+    )
+
+    try:
+        tokens = await registration_service.signin(signin_data.email, signin_data.password)
+    except ServiceError as e:
+        raise unauthorized_error from e
+
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
@@ -76,14 +86,11 @@ async def register_user_face(
     registration_service: RegistrationServiceDependency,
     current_user: CurrentUserDependency,
     image: UploadFile = File(...),
-) -> JSONResponse:
+) -> RegisterUserFaceResponse:
     """Associate a user's face with their account."""
     image_bytes = await image.read()
     response = await registration_service.register_user_face(current_user.email, image_bytes)
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"message": response["message"]},
-    )
+    return RegisterUserFaceResponse(**response)
 
 
 @router.post("/verify_face", status_code=status.HTTP_200_OK)
@@ -93,9 +100,26 @@ async def verify_face(
     current_user: CurrentUserDependency,
     image: UploadFile = File(...),
 ) -> JSONResponse:
+    if not current_user.email_verified:
+        raise HTTPException(status_code=400, detail="Email not verified")
+
     image_bytes = await image.read()
     await registration_service.verify_face(current_user.email, image_bytes)
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"message": "Face verified successfully"},
+    )
+
+
+@router.get("/me", status_code=status.HTTP_200_OK)
+@protected_route
+async def get_user_profile(
+    registration_service: RegistrationServiceDependency,
+    current_user: CurrentUserDependency,
+) -> JSONResponse:
+    user_profile = await registration_service.get_user_profile(current_user.email)
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=user_profile,
     )

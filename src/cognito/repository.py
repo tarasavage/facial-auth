@@ -3,9 +3,9 @@ import boto3
 from fastapi import Depends
 from botocore.exceptions import ClientError
 
-from auth.utils import calculate_secret_hash
+from cognito.utils import calculate_secret_hash
 from core.config import SettingsDependency
-from auth.exceptions import PasswordValidationError
+from cognito.exceptions import PasswordValidationError
 
 
 class CognitoRepo:

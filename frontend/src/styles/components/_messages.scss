@@ -20,7 +20,7 @@
 
   &--success {
     color: vars.$success-color; // Success color from your variables (likely green)
-    
+
     strong {
       font-weight: bold; // Make the email bold in success messages
     }

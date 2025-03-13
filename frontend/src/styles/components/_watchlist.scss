@@ -28,13 +28,17 @@
     border-radius: 8px;
     overflow: hidden;
 
-    th, td {
+    th,
+    td {
       padding: $spacing-s $spacing-m;
       border-bottom: 1px solid color.adjust($background-color, $lightness: -15%);
     }
 
     th {
-      background-color: color.scale($secondary-color, $lightness: 90%); // Stronger blue for the header
+      background-color: color.scale(
+        $secondary-color,
+        $lightness: 90%
+      ); // Stronger blue for the header
       font-weight: bold;
       color: black;
       text-align: left;
@@ -45,7 +49,10 @@
     }
 
     tr:hover {
-      background-color: color.scale($secondary-color, $lightness: 90%); // More noticeable blue on hover
+      background-color: color.scale(
+        $secondary-color,
+        $lightness: 90%
+      ); // More noticeable blue on hover
     }
 
     // Left-align "Actions" header, right-align the action buttons

@@ -16,6 +16,8 @@ class S3Client:
                 aws_access_key_id=aws_access_key_id,
                 aws_secret_access_key=aws_secret_access_key,
             )
+        except ValueError as e:
+            raise S3ClientError("Can't initialize S3 client") from e
         except ClientError as e:
             raise S3ClientError("Failed to initialize S3 client") from e
 
