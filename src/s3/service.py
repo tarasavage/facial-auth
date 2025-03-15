@@ -23,6 +23,13 @@ class S3Service:
         except ClientError as e:
             raise S3ServiceError("Failed to upload object to S3") from e
 
+    def delete_object(self, key: str):
+        """Delete an object from S3."""
+        try:
+            self.client.delete_object(Bucket=self.bucket_name, Key=key)
+        except ClientError as e:
+            raise S3ServiceError("Failed to delete object from S3") from e
+
 
 def get_s3_service(
     s3_config: S3SettingsDependency,

@@ -1,5 +1,12 @@
 from pydantic import BaseModel, EmailStr
 
+from tokens.schemas import TokenData
+
+
+class CookieProfile(BaseModel):
+    email: EmailStr
+    sub: str
+
 
 class UserSignInCredentials(BaseModel):
     email: EmailStr
@@ -11,8 +18,23 @@ class UserConfirmSignupCredentials(BaseModel):
     code: str
 
 
-class RegisterUserFaceResponse(BaseModel):
+class FaceRegistrationResult(BaseModel):
+    status: str
     message: str
-    access_token: str
-    refresh_token: str
-    expires_in: int
+    data: dict
+
+    @classmethod
+    def success(cls, message: str, data: dict) -> "FaceRegistrationResult":
+        return cls(status="success", message=message, data=data)
+
+    @classmethod
+    def error(cls, message: str) -> "FaceRegistrationResult":
+        return cls(status="error", message=message, data={})
+
+
+class RegisterUserFaceResponse(TokenData):
+    message: str
+
+
+class SignInViaFaceResponse(TokenData):
+    message: str

@@ -5,7 +5,6 @@ export const FaceRegistration = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const webcamRef = useRef(null);
   const [image, setImage] = useState(null);
-
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
     setImage(imageSrc);
@@ -21,7 +20,7 @@ export const FaceRegistration = () => {
       const blob = await response.blob();
       const formData = new FormData();
       formData.append("image", blob);
-      const uploadResponse = await fetch(
+      await fetch(
         `${backendUrl}/registration/register_user_face`,
         {
           method: "POST",
@@ -31,8 +30,6 @@ export const FaceRegistration = () => {
           body: formData,
         },
       );
-      const data = await uploadResponse.json();
-      console.log(data);
     } catch (error) {
       console.error(error);
     }
