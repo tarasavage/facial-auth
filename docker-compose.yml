@@ -1,7 +1,7 @@
 services:
   fast-api:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     restart: always
     ports:
@@ -12,7 +12,7 @@ services:
       database:
         condition: service_healthy
     volumes:
-      - ./src:/app/src
+      - ./backend/src:/app/src
     networks:
       - main-network
   

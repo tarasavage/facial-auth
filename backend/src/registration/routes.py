@@ -3,9 +3,9 @@ from fastapi.responses import JSONResponse
 
 from cognito.user_dependency import CurrentUserDependency
 from registration.decorators import protected_route
+from registration.dependencies import UserFromCookieDependency, PERSON_IDENTITY_COOKIE_NAME
 from registration.exceptions import ServiceError
 from registration.schemas import (
-    RegisterUserFaceResponse,
     UserConfirmSignupCredentials,
     UserSignInCredentials,
 )
@@ -86,11 +86,45 @@ async def register_user_face(
     registration_service: RegistrationServiceDependency,
     current_user: CurrentUserDependency,
     image: UploadFile = File(...),
-) -> RegisterUserFaceResponse:
-    """Associate a user's face with their account."""
+) -> JSONResponse:
+    """Associate a user's face with their account with HTTPOnly cookie."""
     image_bytes = await image.read()
-    response = await registration_service.register_user_face(current_user.email, image_bytes)
-    return RegisterUserFaceResponse(**response)
+    service_response = await registration_service.register_face_and_issue_token(current_user.email, image_bytes)
+
+    response = JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"message": service_response.message},
+    )
+    response.set_cookie(
+        key=PERSON_IDENTITY_COOKIE_NAME,
+        value=f"Bearer {service_response.token}",
+        httponly=True,
+        secure=True,
+    )
+    return response
+
+
+@router.post("/signin_via_face", status_code=status.HTTP_200_OK)
+async def signin_via_face(
+    registration_service: RegistrationServiceDependency,
+    user_from_cookie: UserFromCookieDependency,
+    image: UploadFile = File(...),
+) -> JSONResponse:
+    image_bytes = await image.read()
+    service_response = await registration_service.signin_via_face(user_from_cookie.email, image_bytes)
+
+    response = JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"message": service_response.message},
+    )
+
+    response.set_cookie(
+        key=PERSON_IDENTITY_COOKIE_NAME,
+        value=f"Bearer {service_response.token}",
+        httponly=True,
+        secure=True,
+    )
+    return response
 
 
 @router.post("/verify_face", status_code=status.HTTP_200_OK)

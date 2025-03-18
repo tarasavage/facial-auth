@@ -5,14 +5,14 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from cognito.exceptions import NotAuthorizedError
 from cognito.schemas import Profile
-from cognito.service import CognitoTokenServiceDependency
+from cognito.service import CognitoTokenService, CognitoTokenServiceDependency
 
 BearerTokenDependency = Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())]
 
 
 def validate_jwt_token(
     token: str,
-    cognito: CognitoTokenServiceDependency,
+    cognito: CognitoTokenService,
 ) -> dict:
     """Validate JWT token using Cognito service."""
     try:

@@ -5,16 +5,6 @@ import jwt
 from tokens.config import JWT
 
 
-def create_access_token(payload: dict) -> str:
-    payload.update(token_type="access")
-    return encode_jwt(payload, expires_in=JWT.ACCESS_TOKEN_EXPIRES_IN_SECONDS)
-
-
-def create_refresh_token(payload: dict) -> str:
-    payload.update(token_type="refresh")
-    return encode_jwt(payload, expires_in=JWT.REFRESH_TOKEN_EXPIRES_IN_SECONDS)
-
-
 def encode_jwt(
     payload: dict,
     key: str = JWT.PRIVATE_KEY_PATH.read_text(),

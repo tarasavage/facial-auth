@@ -11,7 +11,7 @@ class TokenConfig(BaseModel):
     PUBLIC_KEY_PATH: Path = BASE_DIR / "certs" / "public_key.pem"
     ALGORITHM: str = "RS256"
 
-    ACCESS_TOKEN_EXPIRES_IN_SECONDS: int = 3600  # 1 hour
+    ACCESS_TOKEN_EXPIRES_IN_SECONDS: int = 604800  # 1 week
     REFRESH_TOKEN_EXPIRES_IN_SECONDS: int = 604800  # 1 week
 
 
