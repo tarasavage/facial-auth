@@ -10,6 +10,11 @@ class Settings(BaseSettings):
     APP_NAME: str = "FaceLink"
     APP_SECRET_KEY: str
 
+    ALLOWED_ORIGINS: list[str] = ["*"]
+    ALLOWED_METHODS: list[str] = ["*"]
+    ALLOWED_HEADERS: list[str] = ["*"]
+    ALLOW_CREDENTIALS: bool = True
+
     DB_USER: str
     DB_PASSWORD: str
     DB_HOST: str
