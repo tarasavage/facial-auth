@@ -1,25 +1,21 @@
-ARG PYTHON_VERSION=3.13
+ARG PYTHON_VERSION=3.13 AS BUILDER
 
-FROM python:${PYTHON_VERSION}-slim
+## ------------------------------- Builder Stage ------------------------------ ## 
+FROM python:${PYTHON_VERSION}-bookworm AS builder
 
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH=/app/src \
-    PATH="/app/.venv/bin:$PATH" \
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    build-essential && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/app/.venv/bin:$PATH" \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy
 
-RUN apt-get update && apt-get install -y \
-    gcc \
-    python3-dev \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=ghcr.io/astral-sh/uv:0.5.24 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.6.7 /uv /uvx /bin/
 
 WORKDIR /app
 
-COPY pyproject.toml uv.lock alembic.ini ./
+COPY pyproject.toml uv.lock ./
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
@@ -27,11 +23,28 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system . && \
     uv sync --frozen --no-install-project
 
-COPY ./src /app/src
-COPY ./entrypoint.sh /app/entrypoint.sh
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
+
+
+## ------------------------------- Production Stage ------------------------------ ## 
+
+FROM python:3.13-slim-bookworm AS production
+
+
+WORKDIR /app
+
+COPY --from=builder /app/.venv .venv
+COPY ./src src
+COPY ./alembic.ini alembic.ini
+COPY ./entrypoint.sh entrypoint.sh
+
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH="/app/src"
 
 EXPOSE 8000
 
