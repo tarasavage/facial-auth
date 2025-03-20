@@ -1,7 +1,7 @@
 ARG PYTHON_VERSION=3.13 AS BUILDER
 
 ## ------------------------------- Builder Stage ------------------------------ ## 
-FROM python:${PYTHON_VERSION}-bookworm AS builder
+FROM --platform=linux/amd64 python:${PYTHON_VERSION}-bookworm AS builder
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential && \
@@ -30,7 +30,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ## ------------------------------- Production Stage ------------------------------ ## 
 
-FROM python:3.13-slim-bookworm AS production
+FROM --platform=linux/amd64 python:3.13-slim-bookworm AS production
 
 
 WORKDIR /app

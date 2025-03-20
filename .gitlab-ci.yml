@@ -1,0 +1,17 @@
+stages:
+  - build
+
+
+build:
+  variables:
+    BACKEND_TAG: "backend:${CI_COMMIT_SHORT_SHA}"
+    FRONTEND_TAG: "frontend:${CI_COMMIT_SHORT_SHA}"
+  stage: build
+  script:
+    sh infrastructure/build-and-push-images.sh
+  only:
+    - main
+
+  artifacts:
+    paths:
+      - build-info.json
