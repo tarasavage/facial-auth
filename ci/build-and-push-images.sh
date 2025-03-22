@@ -22,3 +22,12 @@ docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_ECR_REPOSITOR
 
 echo "Pushing the Frontend Docker image to ECR"
 docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_ECR_REPOSITORY_NAME:$FRONTEND_TAG
+
+echo "Creating vars.env file"
+cat > vars.env <<EOF
+TF_VAR_api_image_uri=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_ECR_REPOSITORY_NAME:$BACKEND_TAG
+TF_VAR_frontend_image_uri=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_ECR_REPOSITORY_NAME:$FRONTEND_TAG
+EOF
+
+echo "vars.env file created"
+cat vars.env

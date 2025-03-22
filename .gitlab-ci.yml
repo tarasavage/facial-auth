@@ -1,6 +1,6 @@
 stages:
   - publish-images
-
+  - deploy
 
 variables:
   BACKEND_TAG: "backend-${CI_COMMIT_SHORT_SHA}"
@@ -27,5 +27,45 @@ publish-images:
     - main
 
   artifacts:
+    reports:
+      dotenv: vars.env
     paths:
       - build-info.json
+
+.terraform-job:
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  stage: deploy
+  before_script:
+    - terraform --version
+    - cd ci/terraform
+    - terraform init
+  only:
+    - main
+
+validate:
+  extends: .terraform-job
+  script:
+    - terraform validate
+  dependencies:
+    - publish-images
+
+plan:
+  extends: .terraform-job
+  script:
+    - terraform plan
+  dependencies:
+    - publish-images
+    - validate
+
+apply:
+  extends: .terraform-job
+  script:
+    - terraform apply -auto-approve
+  dependencies:
+    - plan
+    - publish-images
+  when: manual
+  only:
+    - main
