@@ -16,11 +16,11 @@ export const FaceRegistration = () => {
 
   const registerFace = async () => {
     try {
-      const response = await fetch(image);
-      const blob = await response.blob();
+      const imageBlob = await fetch(image);
+      const blob = await imageBlob.blob();
       const formData = new FormData();
       formData.append("image", blob);
-      await fetch(
+      const response = await fetch(
         `${backendUrl}/registration/register_user_face`,
         {
           method: "POST",
@@ -30,6 +30,8 @@ export const FaceRegistration = () => {
           body: formData,
         },
       );
+      const data = await response.json();
+      console.log(data);
     } catch (error) {
       console.error(error);
     }
