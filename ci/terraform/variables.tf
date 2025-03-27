@@ -111,6 +111,31 @@ variable "database_port" {
   default     = 5432
 }
 
+## ------------------------------- Frontend Container Definitions ------------------------------ ## 
+
+variable "frontend_container_name" {
+  description = "The name of the frontend container"
+  type        = string
+  default     = "frontend"
+}
+
+variable "frontend_image_uri" {
+  description = "The URI of the frontend image"
+  type        = string
+}
+
+variable "frontend_log_group" {
+  description = "The log group of the frontend"
+  type        = string
+  default     = "/ecs/facelinq-frontend"
+}
+
+variable "frontend_port" {
+  description = "The port of the frontend"
+  type        = number
+  default     = 80
+}
+
 ## ------------------------------- Network ------------------------------ ## 
 
 variable "vpc_cidr_block" {

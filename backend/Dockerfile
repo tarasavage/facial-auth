@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.13 AS BUILDER
+ARG PYTHON_VERSION=3.13
 
 ## ------------------------------- Builder Stage ------------------------------ ## 
 FROM --platform=linux/amd64 python:${PYTHON_VERSION}-bookworm AS builder
@@ -30,7 +30,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ## ------------------------------- Production Stage ------------------------------ ## 
 
-FROM --platform=linux/amd64 python:3.13-slim-bookworm AS production
+FROM --platform=linux/amd64 python:${PYTHON_VERSION}-slim-bookworm AS production
 
 
 WORKDIR /app
@@ -55,4 +55,4 @@ RUN chmod +x /app/entrypoint.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["python", "src/main.py"]

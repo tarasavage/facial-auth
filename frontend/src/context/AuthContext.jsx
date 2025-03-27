@@ -39,6 +39,9 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch(`${backendUrl}/registration/check_face_auth`, {
         method: "POST",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {

@@ -9,7 +9,7 @@ echo "Building the Backend Docker image"
 docker build --no-cache -t $AWS_ECR_REPOSITORY_NAME:$BACKEND_TAG -f backend/Dockerfile ./backend
 
 echo "Building the Frontend Docker image"
-docker build --no-cache -t $AWS_ECR_REPOSITORY_NAME:$FRONTEND_TAG -f frontend/Dockerfile ./frontend
+docker build --no-cache -t $AWS_ECR_REPOSITORY_NAME:$FRONTEND_TAG -f frontend/Dockerfile.prod ./frontend
 
 echo "Tagging the Backend Docker image"
 docker tag $AWS_ECR_REPOSITORY_NAME:$BACKEND_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_ECR_REPOSITORY_NAME:$BACKEND_TAG

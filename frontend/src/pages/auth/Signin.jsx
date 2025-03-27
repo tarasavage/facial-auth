@@ -64,10 +64,7 @@ export const Signin = () => {
       if (data.success) {
         setMessage("Face authentication successful.");
         setMessageType("success");
-        
-        setTimeout(() => {
-          navigate("/me");
-        }, 1000);
+        navigate("/me");
       } else {
         setMessage("Face authentication failed. Please try password login.");
         setMessageType("error");

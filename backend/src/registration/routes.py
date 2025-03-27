@@ -99,7 +99,8 @@ async def register_user_face(
         key=PERSON_IDENTITY_COOKIE_NAME,
         value=f"Bearer {service_response.token}",
         httponly=True,
-        secure=True,
+        secure=False,
+        samesite="none",
     )
     return response
 
@@ -122,7 +123,8 @@ async def signin_via_face(
         key=PERSON_IDENTITY_COOKIE_NAME,
         value=f"Bearer {service_response.token}",
         httponly=True,
-        secure=True,
+        secure=False,
+        samesite="none",
     )
     return response
 
@@ -170,10 +172,7 @@ async def check_face_auth(
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
-            content={
-                "can_use_face_auth": has_face_registered,
-                "email": user_from_cookie.email
-            }
+            content={"can_use_face_auth": has_face_registered, "email": user_from_cookie.email},
         )
 
     return JSONResponse(
