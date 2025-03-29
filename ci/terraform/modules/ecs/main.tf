@@ -22,6 +22,16 @@ locals {
     database_healthcheck_retries      = 3
     database_healthcheck_start_period = 40
   })
+
+  frontend_template = templatefile("${path.module}/templates/frontend.json.tpl", {
+    aws_region              = var.aws_region
+    aws_s3_bucket_name      = var.aws_s3_bucket_name
+
+    frontend_container_name = var.frontend_container_name
+    frontend_image_uri      = var.frontend_image_uri
+    frontend_log_group      = var.frontend_log_group
+    frontend_port           = var.frontend_port
+  })
 }
 
 resource "aws_ecs_task_definition" "definition" {
@@ -34,7 +44,8 @@ resource "aws_ecs_task_definition" "definition" {
 
   container_definitions = jsonencode([
     jsondecode(local.api_template),
-    jsondecode(local.database_template)
+    jsondecode(local.database_template),
+    jsondecode(local.frontend_template)
   ])
 }
 

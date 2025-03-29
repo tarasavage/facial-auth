@@ -13,6 +13,12 @@ module "ecs" {
   database_image_uri      = var.database_image_uri
   database_port           = var.database_port
 
+  # Frontend
+  frontend_container_name = var.frontend_container_name
+  frontend_image_uri      = var.frontend_image_uri
+  frontend_log_group      = var.frontend_log_group
+  frontend_port           = var.frontend_port
+
   # AWS
   aws_ecr_repository_name = var.aws_ecr_repository_name
   aws_region              = var.aws_region

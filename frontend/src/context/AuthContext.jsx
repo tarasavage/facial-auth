@@ -25,12 +25,34 @@ export const AuthProvider = ({ children }) => {
 
       const data = await response.json();
       setUserInfo({
-        username: data.User.username,
-        email: data.User.email,
-        email_verified: data.User.email_verified,
+        username: data.username,
+        email: data.email,
+        email_verified: data.email_verified,
       });
     } catch (error) {
       console.error("Error fetching user info:", error);
+    }
+  };
+
+  const checkFaceAuth = async () => {
+    try {
+      const response = await fetch(`${backendUrl}/registration/check_face_auth`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to check face auth");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error checking face auth:", error);
+      return false;
     }
   };
 
@@ -63,8 +85,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async ({ email, password }) => {
     try {
-      const api = "http://0.0.0.0:8000";
-      const response = await fetch(`${api}/registration/signin`, {
+      const response = await fetch(`${backendUrl}/registration/signin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +124,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ token, userInfo, login, updateUserInfo, refreshToken, logout }}
+      value={{ token, userInfo, login, updateUserInfo, refreshToken, logout, checkFaceAuth }}
     >
       {children}
     </AuthContext.Provider>

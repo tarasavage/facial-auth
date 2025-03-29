@@ -144,6 +144,13 @@ class RegistrationService:
             message="Login successful", token=access_token.token, expires_in=access_token.expires_in
         )
 
+    async def check_if_face_auth_is_enabled(self, email: str) -> bool:
+        try:
+            user = await self._get_user_or_error(email)
+            return user.face_image_key is not None
+        except ServiceError:
+            return False
+
     async def _unregister_user_face(self, user: User):
         try:
             async with self._uow:
@@ -169,8 +176,11 @@ class RegistrationService:
 
         try:
             async with self._uow:
-                face_details = self._rekognition.detect_face_details(image)
-                self._validate_detected_face(face_details)
+                try:
+                    face_details = self._rekognition.detect_face_details(image)
+                    self._validate_detected_face(face_details)
+                except rekognition_exceptions.RekognitionClientError as e:
+                    raise ServiceError(f"Failed to register user face: {e}") from e
 
                 await self._users.update(user.id, {"face_image_key": user.s3_face_image_key})
                 self._s3.upload_object(key=user.s3_face_image_key, file=image)

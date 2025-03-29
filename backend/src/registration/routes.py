@@ -99,7 +99,8 @@ async def register_user_face(
         key=PERSON_IDENTITY_COOKIE_NAME,
         value=f"Bearer {service_response.token}",
         httponly=True,
-        secure=True,
+        secure=False,
+        samesite="none",
     )
     return response
 
@@ -122,7 +123,8 @@ async def signin_via_face(
         key=PERSON_IDENTITY_COOKIE_NAME,
         value=f"Bearer {service_response.token}",
         httponly=True,
-        secure=True,
+        secure=False,
+        samesite="none",
     )
     return response
 
@@ -156,4 +158,24 @@ async def get_user_profile(
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content=user_profile,
+    )
+
+
+@router.post("/check_face_auth", status_code=status.HTTP_200_OK)
+async def check_face_auth(
+    user_from_cookie: UserFromCookieDependency,
+    registration_service: RegistrationServiceDependency,
+) -> JSONResponse:
+    """Check if user has a valid identity cookie for face authentication."""
+    if user_from_cookie and user_from_cookie.email:
+        has_face_registered = await registration_service.has_face_registered(user_from_cookie.email)
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"can_use_face_auth": has_face_registered, "email": user_from_cookie.email},
+        )
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"can_use_face_auth": False},
     )

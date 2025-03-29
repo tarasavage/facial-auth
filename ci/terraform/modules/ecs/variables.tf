@@ -80,6 +80,28 @@ variable "database_port" {
 }
 
 
+## ------------------------------- Frontend Container Definitions ------------------------------ ## 
+
+variable "frontend_container_name" {
+  description = "The name of the frontend container"
+  type        = string
+}
+
+variable "frontend_image_uri" {
+  description = "The URI of the frontend image"
+  type        = string
+}
+
+variable "frontend_log_group" {
+  description = "The log group of the frontend"
+  type        = string
+}
+
+variable "frontend_port" {
+  description = "The port of the frontend"
+  type        = number
+}
+
 ## ------------------------------- Network ------------------------------ ## 
 
 variable "vpc_cidr_block" {
