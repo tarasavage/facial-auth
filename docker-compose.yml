@@ -57,7 +57,7 @@ services:
     volumes:
       - ./frontend/src:/app/src
     ports:
-      - "80:80"
+      - "443:443"
     networks:
       - main-network
 
