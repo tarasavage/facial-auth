@@ -27,6 +27,7 @@ export const FaceRegistration = () => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
+          credentials: "include",
           body: formData,
         },
       );
