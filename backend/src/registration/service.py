@@ -20,17 +20,13 @@ from registration.schemas import (
     RegisterUserFaceResponse,
     SignInViaFaceResponse,
 )
-from rekognition.repository import (
-    RekognitionRepository,
-    RekognitionRepositoryDependency,
-)
+from rekognition.service import RekognitionServiceDependency
 from s3.service import S3Service, S3ServiceDependency
 from tokens.schemas import AccessToken
 from users.exception import UserNotFoundError
 from users.model import User
 from users.repo import UsersRepository
 from users.schemas import CreateUser
-
 
 MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 
@@ -41,13 +37,13 @@ class RegistrationService:
         uow: UnitOfWork,
         cognito_service: CognitoTokenServiceDependency,
         users_repo: UsersRepository,
-        rekognition_repo: RekognitionRepository,
+        rekognition_service: RekognitionServiceDependency,
         s3_repo: S3Service,
     ):
         self._uow = uow
         self._cognito = cognito_service
         self._users = users_repo
-        self._rekognition = rekognition_repo
+        self._rekognition = rekognition_service
         self._s3 = s3_repo
 
     async def get_user_profile(self, email: str) -> dict:
@@ -127,21 +123,27 @@ class RegistrationService:
     async def verify_face(self, email: str, image: bytes):
         user = await self._get_user_or_error(email)
         try:
-            await self._authenticate_face_image(user, image)
+            await self._verify_user_face(user, image)
         except ServiceError as e:
             raise ServiceError(f"Failed to verify face: {e}") from e
 
     async def signin_via_face(self, email: str, image: bytes) -> SignInViaFaceResponse:
         user = await self._get_user_or_error(email)
-        access_token = self._generate_access_token_for_user(user)
+        cookie = self._generate_access_token_for_user(user)
 
-        try:
-            await self._authenticate_face_image(user, image)
-        except ServiceError as e:
-            raise ServiceError(f"Failed to signin via face: {e}") from e
+        if await self._verify_user_face(user, image):
+            tokens = self._cognito.signin_via_face(email, image, "face_verified")
+        else:
+            raise ServiceError(f"Failed to verify face for user: {email}")
 
         return SignInViaFaceResponse(
-            message="Login successful", token=access_token.token, expires_in=access_token.expires_in
+            message="Login successful",
+            access_token=tokens["AuthenticationResult"]["AccessToken"],
+            refresh_token=tokens["AuthenticationResult"]["RefreshToken"],
+            expires_in=tokens["AuthenticationResult"]["ExpiresIn"],
+            token_type=tokens["AuthenticationResult"]["TokenType"],
+            cookie=cookie.token,
+            cookie_expires_in=cookie.expires_in,
         )
 
     async def check_if_face_auth_is_enabled(self, email: str) -> bool:
@@ -227,14 +229,17 @@ class RegistrationService:
         if face.get("FaceOccluded", {}).get("Value"):
             raise rekognition_exceptions.FaceOccludedError("Face image cannot be occluded.")
 
-    async def _authenticate_face_image(self, user: User, image: bytes):
+    async def _verify_user_face(self, user: User, image: bytes):
         try:
             async with self._uow:
                 if not user.face_image_key:
                     raise FaceVerificationNotEnabledError("Face verification is not enabled for this user")
 
                 try:
-                    self._rekognition.compare_faces(user.s3_face_image_key, image)
+                    matches = self._rekognition.compare_faces(user.s3_face_image_key, image)
+                    # if at least one face match is found, the face is verified
+                    return any(match["Matched"] for match in matches)
+
                 except rekognition_exceptions.RekognitionError as e:
                     raise ServiceError(f"Failed to verify face: {e}") from e
 
@@ -245,14 +250,14 @@ class RegistrationService:
 def get_registration_service(
     session: SessionDependency,
     cognito_service: CognitoTokenServiceDependency,
-    rekognition_repo: RekognitionRepositoryDependency,
+    rekognition_service: RekognitionServiceDependency,
     s3_repo: S3ServiceDependency,
 ) -> RegistrationService:
     return RegistrationService(
         uow=UnitOfWork(session),
         cognito_service=cognito_service,
         users_repo=UsersRepository(session),
-        rekognition_repo=rekognition_repo,
+        rekognition_service=rekognition_service,
         s3_repo=s3_repo,
     )
 

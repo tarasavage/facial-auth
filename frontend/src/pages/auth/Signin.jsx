@@ -68,6 +68,12 @@ export const Signin = () => {
       const data = await result.json();
       
       if (data.success) {
+        if (!data.access_token) { 
+          setMessage("Face authentication failed. Please try password login.");
+          setMessageType("error");
+          return;
+        }
+        localStorage.setItem("token", data.access_token);
         setMessage("Face authentication successful.");
         setMessageType("success");
         navigate("/me");

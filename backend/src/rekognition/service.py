@@ -27,6 +27,9 @@ class RekognitionService:
             for match in matches
         ]
 
+    def detect_face_details(self, image: bytes) -> dict:
+        return self._repo.detect_face_details(image)
+
 
 def get_rekognition_service(
     repo: RekognitionRepositoryDependency,
