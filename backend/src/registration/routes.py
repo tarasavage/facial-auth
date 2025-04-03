@@ -9,7 +9,7 @@ from registration.schemas import (
     UserConfirmSignupCredentials,
     UserSignInCredentials,
 )
-from registration.services import RegistrationServiceDependency
+from registration.service import RegistrationServiceDependency
 from users.schemas import CreateUser
 
 router = APIRouter(tags=["registration"])
@@ -71,6 +71,7 @@ async def signin(
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
+            "success": True,
             "message": "User signed in successfully",
             "access_token": tokens["AuthenticationResult"]["AccessToken"],
             "refresh_token": tokens["AuthenticationResult"]["RefreshToken"],
@@ -91,16 +92,12 @@ async def register_user_face(
     image_bytes = await image.read()
     service_response = await registration_service.register_face_and_issue_token(current_user.email, image_bytes)
 
-    response = JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"message": service_response.message},
-    )
+    response = JSONResponse(status_code=status.HTTP_201_CREATED, content={"message": service_response.message})
     response.set_cookie(
         key=PERSON_IDENTITY_COOKIE_NAME,
         value=f"Bearer {service_response.token}",
         httponly=True,
-        secure=False,
-        samesite="none",
+        secure=True,
     )
     return response
 
@@ -112,19 +109,24 @@ async def signin_via_face(
     image: UploadFile = File(...),
 ) -> JSONResponse:
     image_bytes = await image.read()
-    service_response = await registration_service.signin_via_face(user_from_cookie.email, image_bytes)
+    credentials = await registration_service.signin_via_face(user_from_cookie.email, image_bytes)
 
     response = JSONResponse(
         status_code=status.HTTP_200_OK,
-        content={"message": service_response.message},
+        content={
+            "success": True,
+            "access_token": credentials.access_token,
+            "refresh_token": credentials.refresh_token,
+            "expires_in": credentials.expires_in,
+            "token_type": credentials.token_type,
+        },
     )
 
     response.set_cookie(
         key=PERSON_IDENTITY_COOKIE_NAME,
-        value=f"Bearer {service_response.token}",
+        value=f"Bearer {credentials.cookie}",
         httponly=True,
-        secure=False,
-        samesite="none",
+        secure=True,
     )
     return response
 
@@ -141,10 +143,7 @@ async def verify_face(
 
     image_bytes = await image.read()
     await registration_service.verify_face(current_user.email, image_bytes)
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"message": "Face verified successfully"},
-    )
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"success": True, "message": "Face verified successfully"})
 
 
 @router.get("/me", status_code=status.HTTP_200_OK)
@@ -155,10 +154,7 @@ async def get_user_profile(
 ) -> JSONResponse:
     user_profile = await registration_service.get_user_profile(current_user.email)
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content=user_profile,
-    )
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"success": True, "data": user_profile})
 
 
 @router.post("/check_face_auth", status_code=status.HTTP_200_OK)
@@ -168,14 +164,11 @@ async def check_face_auth(
 ) -> JSONResponse:
     """Check if user has a valid identity cookie for face authentication."""
     if user_from_cookie and user_from_cookie.email:
-        has_face_registered = await registration_service.has_face_registered(user_from_cookie.email)
+        has_face_registered = await registration_service.check_if_face_auth_is_enabled(user_from_cookie.email)
 
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content={"can_use_face_auth": has_face_registered, "email": user_from_cookie.email},
         )
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"can_use_face_auth": False},
-    )
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"can_use_face_auth": False, "success": True})

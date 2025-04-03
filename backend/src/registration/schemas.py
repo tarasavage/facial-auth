@@ -1,7 +1,5 @@
 from pydantic import BaseModel, EmailStr
 
-from tokens.schemas import TokenData
-
 
 class CookieProfile(BaseModel):
     email: EmailStr
@@ -32,9 +30,17 @@ class FaceRegistrationResult(BaseModel):
         return cls(status="error", message=message, data={})
 
 
-class RegisterUserFaceResponse(TokenData):
+class RegisterUserFaceResponse(BaseModel):
     message: str
+    token: str
+    expires_in: int
 
 
-class SignInViaFaceResponse(TokenData):
+class SignInViaFaceResponse(BaseModel):
     message: str
+    access_token: str
+    refresh_token: str
+    expires_in: int
+    token_type: str
+    cookie: str
+    cookie_expires_in: int

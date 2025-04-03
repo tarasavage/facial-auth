@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "FaceLink"
     APP_SECRET_KEY: str
 
-    ALLOWED_ORIGINS: list[str] = ["http://localhost", "http://0.0.0.0"]
+    ALLOWED_ORIGINS: list[str] = ["https://localhost", "https://0.0.0.0"]
     ALLOWED_METHODS: list[str] = ["*"]
     ALLOWED_HEADERS: list[str] = ["*"]
     ALLOW_CREDENTIALS: bool = True

@@ -21,6 +21,8 @@ export const Signin = () => {
   const webcamRef = useRef(null);
   const { login, checkFaceAuth } = useContext(AuthContext);
 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const checkAuthCookie = async () => {
       try {
@@ -50,18 +52,28 @@ export const Signin = () => {
   const authenticateWithFace = async () => {
     try {
       const formData = new FormData();
-      const imageSrc = webcamRef.current.getScreenshot();
-      formData.append("image", imageSrc);
+      const imageSrc = await fetch(webcamRef.current.getScreenshot());
+      const blob = await imageSrc.blob();
+      formData.append("image", blob);
       
-      const result = await fetch("/signin_via_face", {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
+      const result = await fetch(
+        `${backendUrl}/registration/signin_via_face`,
+        {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        },
+      );
       
       const data = await result.json();
       
       if (data.success) {
+        if (!data.access_token) { 
+          setMessage("Face authentication failed. Please try password login.");
+          setMessageType("error");
+          return;
+        }
+        localStorage.setItem("token", data.access_token);
         setMessage("Face authentication successful.");
         setMessageType("success");
         navigate("/me");

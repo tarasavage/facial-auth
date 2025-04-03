@@ -37,6 +37,7 @@ WORKDIR /app
 
 COPY --from=builder /app/.venv .venv
 COPY ./src src
+COPY ./ssl ssl
 COPY ./alembic.ini alembic.ini
 COPY ./entrypoint.sh entrypoint.sh
 

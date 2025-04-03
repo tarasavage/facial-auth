@@ -31,18 +31,18 @@ class CognitoRepo:
             aws_secret_access_key=aws_secret_access_key,
         )
 
-    def _secret_hash(self, user: str) -> str:
-        return calculate_secret_hash(user, self.client_id, self.client_secret)
+    def _secret_hash(self, email: str) -> str:
+        return calculate_secret_hash(email, self.client_id, self.client_secret)
 
-    def signup(self, user: str, pwd: str) -> dict:
+    def signup(self, email: str, pwd: str) -> dict:
         """Register a new user in Cognito"""
         try:
             response = self._cognito_idp.sign_up(
                 ClientId=self.client_id,
-                Username=user,
+                Username=email,
                 Password=pwd,
-                UserAttributes=[{"Name": "email", "Value": user}],
-                SecretHash=self._secret_hash(user),
+                UserAttributes=[{"Name": "email", "Value": email}],
+                SecretHash=self._secret_hash(email),
             )
             return response
         except self._cognito_idp.exceptions.InvalidPasswordException as e:
@@ -51,29 +51,62 @@ class CognitoRepo:
         except ClientError as e:
             raise e
 
-    def confirm_signup(self, user: str, code: str) -> dict:
+    def confirm_signup(self, email: str, code: str) -> dict:
         """Confirm user registration with verification code"""
         try:
             response = self._cognito_idp.confirm_sign_up(
                 ClientId=self.client_id,
-                Username=user,
+                Username=email,
                 ConfirmationCode=code,
-                SecretHash=self._secret_hash(user),
+                SecretHash=self._secret_hash(email),
             )
             return response
         except ClientError as e:
             raise e
 
-    def signin(self, user: str, pwd: str) -> dict:
+    def signin(self, email: str, pwd: str) -> dict:
         """Authenticate user and return tokens"""
         try:
             response = self._cognito_idp.initiate_auth(
                 ClientId=self.client_id,
                 AuthFlow="USER_PASSWORD_AUTH",
                 AuthParameters={
-                    "USERNAME": user,
+                    "USERNAME": email,
                     "PASSWORD": pwd,
-                    "SECRET_HASH": self._secret_hash(user),
+                    "SECRET_HASH": self._secret_hash(email),
+                },
+            )
+            return response
+        except ClientError as e:
+            raise e
+
+    def initiate_face_auth(self, email: str) -> dict:
+        """Authenticate user and return tokens"""
+        try:
+            response = self._cognito_idp.admin_initiate_auth(
+                UserPoolId=self.user_pool_id,
+                ClientId=self.client_id,
+                AuthFlow="CUSTOM_AUTH",
+                AuthParameters={
+                    "USERNAME": email,
+                    "SECRET_HASH": self._secret_hash(email),
+                },
+            )
+            return response
+        except ClientError as e:
+            raise e
+
+    def respond_to_face_auth(self, email: str, challenge_name: str, session: str, answer: str) -> dict:
+        """Respond to face authentication challenge"""
+        try:
+            response = self._cognito_idp.respond_to_auth_challenge(
+                ClientId=self.client_id,
+                ChallengeName=challenge_name,
+                Session=session,
+                ChallengeResponses={
+                    "USERNAME": email,
+                    "ANSWER": answer,
+                    "SECRET_HASH": self._secret_hash(email),
                 },
             )
             return response
@@ -109,20 +142,20 @@ class CognitoRepo:
         except ClientError as e:
             raise e
 
-    def forgot_password(self, username: str) -> dict:
+    def forgot_password(self, email: str) -> dict:
         """Initiate forgot password flow"""
         try:
-            response = self._cognito_idp.forgot_password(ClientId=self.client_id, Username=username)
+            response = self._cognito_idp.forgot_password(ClientId=self.client_id, Username=email)
             return response
         except ClientError as e:
             raise e
 
-    def confirm_forgot_password(self, username: str, code: str, new_password: str) -> dict:
+    def confirm_forgot_password(self, email: str, code: str, new_password: str) -> dict:
         """Complete forgot password flow"""
         try:
             response = self._cognito_idp.confirm_forgot_password(
                 ClientId=self.client_id,
-                Username=username,
+                Username=email,
                 ConfirmationCode=code,
                 Password=new_password,
             )
