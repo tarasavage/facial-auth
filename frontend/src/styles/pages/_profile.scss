@@ -1,0 +1,82 @@
+@use "sass:color";
+@use "../abstracts/variables" as vars;
+
+.profile {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  background-color: vars.$background-color;
+  padding: vars.$spacing-xl;
+  font-family: vars.$base-font-family;
+  
+  &__container {
+    max-width: 800px;
+    width: 100%;
+  }
+  
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: vars.$spacing-xl;
+    
+    h1 {
+      font-family: vars.$heading-font-family;
+      font-size: 2rem;
+      margin: 0;
+      color: #333;
+    }
+  }
+  
+  &__card {
+    background-color: vars.$white-color;
+    border-radius: 8px;
+    padding: vars.$spacing-xl;
+    box-shadow: 0 4px 8px vars.$box-shadow-color;
+  }
+  
+  &__info {
+    margin-bottom: vars.$spacing-xl;
+  }
+  
+  &__field {
+    display: flex;
+    margin-bottom: vars.$spacing-m;
+    padding-bottom: vars.$spacing-s;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    strong {
+      width: 200px;
+      font-weight: 600;
+      color: #555;
+    }
+    
+    span {
+      flex: 1;
+    }
+  }
+  
+  &__actions {
+    display: flex;
+    gap: vars.$spacing-m;
+    justify-content: flex-start;
+    margin-top: vars.$spacing-l;
+
+    a {
+      text-decoration: none;
+    }
+  }
+  
+  &__logout-btn {
+    max-width: 120px;
+    min-width: 0;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 20px;
+  }
+} 

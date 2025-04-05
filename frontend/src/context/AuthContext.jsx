@@ -23,11 +23,11 @@ export const AuthProvider = ({ children }) => {
         throw new Error("Failed to fetch user info");
       }
 
-      const data = await response.json();
+      const responseData = await response.json();
       setUserInfo({
-        username: data.username,
-        email: data.email,
-        email_verified: data.email_verified,
+        username: responseData.data.username,
+        email: responseData.data.email,
+        email_verified: responseData.data.email_verified,
       });
     } catch (error) {
       console.error("Error fetching user info:", error);

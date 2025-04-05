@@ -1,5 +1,7 @@
 import { Header } from "@/components/layout/Header";
 
+import "@/styles/pages/_home.scss";
+
 export const HomePage = () => {
   return (
     <div className="home">
