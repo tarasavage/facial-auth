@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 
+import "@/styles/components/_header.scss";
+
 export const Header = () => {
   return (
     <header className="header">
@@ -10,7 +12,7 @@ export const Header = () => {
         </Link>
         <nav className="header__nav">
           <Link to="/signin" className="header__link">
-            <PrimaryButton>Sign In</PrimaryButton>
+            <PrimaryButton variant="secondary">Sign In</PrimaryButton>
           </Link>
           <Link to="/signup" className="header__link">
             <PrimaryButton>Sign Up</PrimaryButton>

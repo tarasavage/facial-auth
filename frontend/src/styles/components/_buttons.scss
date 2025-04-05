@@ -4,116 +4,193 @@
 @use "../abstracts/variables" as vars;
 
 .button {
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 12px 24px; // Larger padding for better touch targets
+  border-radius: 30px; // Rounded corners for modern look
   font-size: 16px;
+  font-weight: 600; // Bolder text
+  letter-spacing: 0.5px; // Better text spacing
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   max-width: 400px;
   width: 100%;
+  border: none;
+  transition: all 0.3s ease; // Smooth transitions
+  position: relative;
+  overflow: hidden;
+  
+  // Add subtle ripple effect on click
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 0.5s;
+  }
+  
+  &:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+  }
 
   // Primary button styles
   &--primary {
-    background-color: vars.$primary-color;
+    background: linear-gradient(45deg, vars.$primary-color, color.adjust(vars.$primary-color, $lightness: 10%));
     color: vars.$white-color;
-    border: none;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
 
     // Hover state for primary button
     &:hover {
-      background-color: color.adjust(vars.$primary-color, $lightness: -10%);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+      transform: translateY(-2px);
     }
 
     // Disabled state
     &:disabled {
-      background-color: color.adjust(vars.$primary-color, $lightness: 30%);
+      background: linear-gradient(45deg, color.adjust(vars.$primary-color, $lightness: 25%), color.adjust(vars.$primary-color, $lightness: 35%));
+      box-shadow: none;
       cursor: not-allowed;
+      transform: none;
     }
   }
 
   // Secondary button styles
   &--secondary {
-    background-color: vars.$secondary-color;
+    background: linear-gradient(45deg, vars.$secondary-color, color.adjust(vars.$secondary-color, $lightness: 10%));
     color: vars.$white-color;
-    border: none;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
 
     &:hover {
-      background-color: color.adjust(vars.$secondary-color, $lightness: -10%);
+      box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
+      transform: translateY(-2px);
     }
 
     &:disabled {
-      background-color: color.adjust(vars.$secondary-color, $lightness: 30%);
+      background: linear-gradient(45deg, color.adjust(vars.$secondary-color, $lightness: 25%), color.adjust(vars.$secondary-color, $lightness: 35%));
+      box-shadow: none;
       cursor: not-allowed;
+      transform: none;
     }
   }
 
   // Google button styles
   &--google {
-    background-color: #db4437;
+    background: linear-gradient(45deg, #db4437, color.adjust(#db4437, $lightness: 10%));
     color: vars.$white-color;
-    border: none;
+    box-shadow: 0 4px 15px rgba(219, 68, 55, 0.4);
 
     &:hover {
-      background-color: color.adjust(#db4437, $lightness: -10%);
+      box-shadow: 0 6px 20px rgba(219, 68, 55, 0.6);
+      transform: translateY(-2px);
     }
 
     &:disabled {
-      background-color: color.adjust(#db4437, $lightness: 30%);
+      background: linear-gradient(45deg, color.adjust(#db4437, $lightness: 25%), color.adjust(#db4437, $lightness: 35%));
+      box-shadow: none;
       cursor: not-allowed;
+      transform: none;
     }
   }
 
   // Apple button styles
   &--apple {
-    background-color: #000;
+    background: linear-gradient(45deg, #000, #333);
     color: vars.$white-color;
-    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 
     &:hover {
-      background-color: color.adjust(#000, $lightness: -10%);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+      transform: translateY(-2px);
     }
 
     &:disabled {
-      background-color: color.adjust(#000, $lightness: 30%);
+      background: linear-gradient(45deg, #333, #666);
+      box-shadow: none;
       cursor: not-allowed;
+      transform: none;
     }
   }
 
   // Icon button styles
   &--icon {
     background-color: transparent;
-    border: none;
-    padding: 5px;
+    padding: 8px;
+    width: auto;
+    border-radius: 50%;
+    transition: all 0.3s ease;
 
     &:hover {
-      background-color: vars.$icon-color-hover;
+      background-color: rgba(0, 0, 0, 0.05);
+      transform: translateY(-2px);
     }
 
     &:disabled {
       background-color: transparent;
       cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
     }
   }
 
   // Danger button styles
   &--danger {
-    background-color: vars.$danger-color;
+    background: linear-gradient(45deg, vars.$danger-color, color.adjust(vars.$danger-color, $lightness: 10%));
     color: vars.$white-color;
-    border: none;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
 
     &:hover {
-      background-color: color.adjust(vars.$danger-color, $lightness: -10%);
+      box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+      transform: translateY(-2px);
     }
 
     &:disabled {
-      background-color: color.adjust(vars.$danger-color, $lightness: 30%);
+      background: linear-gradient(45deg, color.adjust(vars.$danger-color, $lightness: 25%), color.adjust(vars.$danger-color, $lightness: 35%));
+      box-shadow: none;
       cursor: not-allowed;
+      transform: none;
     }
+  }
+  
+  // Full width button
+  &--full {
+    max-width: 100%;
   }
 
   // Icon inside button
   &__icon {
-    margin-right: 5px;
+    margin-right: 8px;
   }
+  
+  // Loading state
+  &--loading {
+    position: relative;
+    color: transparent !important;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 2px solid transparent;
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: button-spinner 0.8s linear infinite;
+    }
+  }
+}
+
+@keyframes button-spinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

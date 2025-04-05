@@ -20,6 +20,7 @@
 @use "./components/validation" as *;
 @use "./components/search" as *;
 @use "./components/watchlist" as *;
+@use "./components/faceauth" as *;
 
 // Layouts
 @use "./layouts/header" as *;
@@ -29,3 +30,5 @@
 // Pages
 @use "./pages/dashboard" as *;
 @use "./pages/homepage" as *;
+@use "./pages/profile" as *;
+@use "./pages/signin" as *;

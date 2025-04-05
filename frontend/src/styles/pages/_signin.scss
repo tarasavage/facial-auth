@@ -1,0 +1,222 @@
+@use "sass:color";
+@use "../abstracts/variables" as vars;
+
+.signin-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+  padding: vars.$spacing-m;
+  
+  .form {
+    margin: 0;
+    width: 100%;
+    max-width: 800px;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    min-height: auto;
+    
+    &__box {
+      width: 100%;
+      max-width: 400px;
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+      padding: vars.$spacing-l;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 20px rgba(0, 0, 0, 0.06);
+      }
+    }
+    
+    &__title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: vars.$spacing-m;
+      text-align: center;
+      position: relative;
+      
+      &::after {
+        content: '';
+        display: block;
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(to right, vars.$primary-color, vars.$secondary-color);
+        margin: 8px auto 0;
+        border-radius: 2px;
+      }
+    }
+    
+    &__button-group {
+      margin-top: vars.$spacing-m;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      
+      .button {
+        border-radius: 30px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        letter-spacing: 0.5px;
+        
+        &--primary {
+          background: linear-gradient(45deg, vars.$primary-color, color.adjust(vars.$primary-color, $lightness: 10%));
+          box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+          width: 100%;
+          max-width: 220px;
+          margin: 0 auto;
+          
+          &:hover {
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+            transform: translateY(-2px);
+          }
+        }
+        
+        &--secondary {
+          background: linear-gradient(45deg, vars.$secondary-color, color.adjust(vars.$secondary-color, $lightness: 10%));
+          box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+          width: 100%;
+          max-width: 220px;
+          margin: 0 auto;
+          
+          &:hover {
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
+            transform: translateY(-2px);
+          }
+        }
+      }
+    }
+  }
+  
+  // Enhance the face-auth component when inside the signin page
+  .face-auth {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: vars.$spacing-s;
+    
+    &__webcam {
+      margin-bottom: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid rgba(vars.$primary-color, 0.3);
+    }
+    
+    .webcam {
+      video {
+        object-fit: cover;
+      }
+    }
+  }
+  
+  // Enhance form inputs
+  .form__group {
+    margin-bottom: vars.$spacing-m;
+    
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+      display: block;
+      transition: color 0.3s ease;
+    }
+    
+    .form__input {
+      background-color: #f9f9f9;
+      border: 1px solid #e1e1e1;
+      border-radius: 30px;
+      padding: 10px 16px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      
+      &:focus {
+        border-color: vars.$primary-color;
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+        background-color: #fff;
+        
+        + label {
+          color: vars.$primary-color;
+        }
+      }
+    }
+  }
+  
+  // Center login form
+  form {
+    width: 100%;
+  }
+  
+  // Special style for signin button
+  .signin-button {
+    margin-top: vars.$spacing-s;
+    width: 100%;
+    max-width: 260px !important;
+  }
+  
+  // Animation for page load
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .form__box {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+  
+  // Styling for signup link section
+  .signup-link {
+    margin-top: vars.$spacing-l;
+    padding-top: vars.$spacing-m;
+    border-top: 1px solid #e1e1e1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    p {
+      margin-bottom: vars.$spacing-s;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .signup-button {
+      max-width: 180px !important;
+      background: transparent !important;
+      color: vars.$secondary-color !important;
+      border: 1px solid vars.$secondary-color;
+      box-shadow: none;
+      
+      &:hover {
+        background: rgba(vars.$secondary-color, 0.1) !important;
+        transform: translateY(-1px);
+      }
+    }
+  }
+}
+
+// Media queries for responsiveness
+@media (max-width: 768px) {
+  .signin-page {
+    .form__box {
+      padding: vars.$spacing-m;
+    }
+  }
+}

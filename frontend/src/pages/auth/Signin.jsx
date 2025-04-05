@@ -14,12 +14,13 @@ export const Signin = () => {
   const [messageType, setMessageType] = useState("");
   const [password, setPassword] = useState("");
   const [showTraditionalSignin, setShowTraditionalSignin] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Refs, hooks, and context
   const navigate = useNavigate();
   const location = useLocation();
   const webcamRef = useRef(null);
-  const { login, checkFaceAuth } = useContext(AuthContext);
+  const { login, checkFaceAuth, refreshToken } = useContext(AuthContext);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -50,7 +51,17 @@ export const Signin = () => {
 
   // Authentication methods
   const authenticateWithFace = async () => {
+    if (!webcamRef.current) {
+      setMessage("Camera not initialized. Please refresh the page.");
+      setMessageType("error");
+      return;
+    }
+    
     try {
+      setIsLoading(true);
+      setMessage("Processing your face authentication...");
+      setMessageType("info");
+      
       const formData = new FormData();
       const imageSrc = await fetch(webcamRef.current.getScreenshot());
       const blob = await imageSrc.blob();
@@ -73,10 +84,15 @@ export const Signin = () => {
           setMessageType("error");
           return;
         }
-        localStorage.setItem("token", data.access_token);
+        
+        refreshToken(data.access_token);
+        
         setMessage("Face authentication successful.");
         setMessageType("success");
-        navigate("/me");
+        
+        setTimeout(() => {
+          navigate("/me");
+        }, 500);
       } else {
         setMessage("Face authentication failed. Please try password login.");
         setMessageType("error");
@@ -85,11 +101,14 @@ export const Signin = () => {
       setMessage("Face authentication failed.");
       setMessageType("error");
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const submitLoginForm = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const result = await login({ email, password });
@@ -118,32 +137,43 @@ export const Signin = () => {
       setMessage("Login failed due to a server error.");
       setMessageType("error");
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Render methods
   const renderFaceAuth = () => (
     <div className="face-auth">
-      <Webcam
-        audio={false}
-        ref={webcamRef}
-        width={400}
-        height={400}
-        screenshotFormat="image/jpeg"
-      />
+      <div className="face-auth__webcam">
+        <Webcam
+          audio={false}
+          ref={webcamRef}
+          width={320}
+          height={320}
+          screenshotFormat="image/jpeg"
+          videoConstraints={{
+            facingMode: "user",
+            width: 320,
+            height: 320
+          }}
+        />
+      </div>
       
       <div className="form__button-group">
         <PrimaryButton 
           type="button" 
           onClick={authenticateWithFace}
+          disabled={isLoading}
         >
-          Authenticate with Face
+          {isLoading ? "Authenticating..." : "Authenticate with Face"}
         </PrimaryButton>
         
         <PrimaryButton 
           type="button" 
           onClick={() => setShowTraditionalSignin(true)}
           variant="secondary"
+          disabled={isLoading}
         >
           Use Password Instead
         </PrimaryButton>
@@ -156,6 +186,7 @@ export const Signin = () => {
       <InputField
         label="Email"
         type="email"
+        id="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
@@ -163,6 +194,7 @@ export const Signin = () => {
       <InputField
         label="Password"
         type="password"
+        id="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
@@ -173,6 +205,7 @@ export const Signin = () => {
             type="button" 
             onClick={() => setShowTraditionalSignin(false)}
             variant="secondary"
+            disabled={isLoading}
           >
             Use Face Authentication
           </PrimaryButton>
@@ -180,9 +213,11 @@ export const Signin = () => {
         
         <PrimaryButton 
           type="submit" 
-          fullWidth
+          disabled={isLoading}
+          isLoading={isLoading}
+          className="signin-button"
         >
-          Signin
+          Sign In
         </PrimaryButton>
       </div>
     </form>
@@ -190,13 +225,27 @@ export const Signin = () => {
   
   // Main render
   return (
-    <div className="form">
-      <div className="form__box modal">
-        <h2 className="form__title">Signin</h2>
-        <FormMessage message={message} isError={messageType === "error"} />
-        
-        {isFaceAuthEnabled && !showTraditionalSignin && renderFaceAuth()}
-        {(!isFaceAuthEnabled || showTraditionalSignin) && renderTraditionalSignin()}
+    <div className="signin-page">
+      <div className="form">
+        <div className="form__box modal">
+          <h2 className="form__title">Sign In</h2>
+          <FormMessage message={message} isError={messageType === "error"} />
+          
+          {isFaceAuthEnabled && !showTraditionalSignin && renderFaceAuth()}
+          {(!isFaceAuthEnabled || showTraditionalSignin) && renderTraditionalSignin()}
+          
+          <div className="signup-link">
+            <p>Don&apos;t have an account?</p>
+            <PrimaryButton 
+              type="button"
+              variant="secondary"
+              onClick={() => navigate("/signup")}
+              className="signup-button"
+            >
+              Sign Up
+            </PrimaryButton>
+          </div>
+        </div>
       </div>
     </div>
   );
