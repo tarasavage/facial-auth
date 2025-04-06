@@ -18,7 +18,7 @@ from registration.exceptions import (
 from registration.schemas import (
     FaceRegistrationResult,
     RegisterUserFaceResponse,
-    SignInViaFaceResponse,
+    SignInResponse,
 )
 from rekognition.service import RekognitionServiceDependency
 from s3.service import S3Service, S3ServiceDependency
@@ -105,6 +105,22 @@ class RegistrationService:
 
         except UnitOfWorkError as e:
             raise ServiceError(f"Failed to signin: {e}") from e
+        
+    async def perform_user_signin_flow(self, email: str, password: str) -> SignInResponse:
+        user = await self._get_user_or_error(email)
+        cookie = self._generate_access_token_for_user(user) if user.face_image_key else None
+
+        tokens = await self.signin(email, password)
+
+        return SignInResponse(
+            message="Login successful",
+            access_token=tokens["AuthenticationResult"]["AccessToken"],
+            refresh_token=tokens["AuthenticationResult"]["RefreshToken"],
+            expires_in=tokens["AuthenticationResult"]["ExpiresIn"],
+            token_type=tokens["AuthenticationResult"]["TokenType"],
+            cookie=cookie.token if cookie else None,
+            cookie_expires_in=cookie.expires_in if cookie else None,
+        )
 
     async def register_face_and_issue_token(self, email: str, image: bytes) -> RegisterUserFaceResponse:
         user = await self._get_user_or_error(email)
@@ -127,7 +143,7 @@ class RegistrationService:
         except ServiceError as e:
             raise ServiceError(f"Failed to verify face: {e}") from e
 
-    async def signin_via_face(self, email: str, image: bytes) -> SignInViaFaceResponse:
+    async def signin_via_face(self, email: str, image: bytes) -> SignInResponse:
         user = await self._get_user_or_error(email)
         cookie = self._generate_access_token_for_user(user)
 
@@ -136,7 +152,7 @@ class RegistrationService:
         else:
             raise ServiceError(f"Failed to verify face for user: {email}")
 
-        return SignInViaFaceResponse(
+        return SignInResponse(
             message="Login successful",
             access_token=tokens["AuthenticationResult"]["AccessToken"],
             refresh_token=tokens["AuthenticationResult"]["RefreshToken"],

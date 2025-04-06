@@ -57,28 +57,38 @@ async def signin(
     signin_data: UserSignInCredentials,
     registration_service: RegistrationServiceDependency,
 ) -> JSONResponse:
-    """Authenticate user and return access tokens."""
+    """Authenticate user and return access tokens with HTTPOnly cookie."""
     unauthorized_error = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid credentials",
     )
 
     try:
-        tokens = await registration_service.signin(signin_data.email, signin_data.password)
+        credentials = await registration_service.perform_user_signin_flow(signin_data.email, signin_data.password)
     except ServiceError as e:
         raise unauthorized_error from e
 
-    return JSONResponse(
+    resp = JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
             "success": True,
-            "message": "User signed in successfully",
-            "access_token": tokens["AuthenticationResult"]["AccessToken"],
-            "refresh_token": tokens["AuthenticationResult"]["RefreshToken"],
-            "expires_in": tokens["AuthenticationResult"]["ExpiresIn"],
-            "token_type": tokens["AuthenticationResult"]["TokenType"],
+            "message": credentials.message,
+            "access_token": credentials.access_token,
+            "refresh_token": credentials.refresh_token,
+            "expires_in": credentials.expires_in,
+            "token_type": credentials.token_type,
         },
     )
+
+    if credentials.cookie is not None:
+        resp.set_cookie(
+            key=PERSON_IDENTITY_COOKIE_NAME,
+            value=f"Bearer {credentials.cookie}",
+            httponly=True,
+            secure=True,
+        )
+
+    return resp
 
 
 @router.post("/register_user_face", status_code=status.HTTP_201_CREATED)

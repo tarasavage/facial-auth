@@ -1,29 +1,14 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
 import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import { FormMessage } from "@/components/forms/FormMessage";
 
 export const ProfilePage = () => {
-  const { userInfo, logout, checkFaceAuth } = useContext(AuthContext);
-  const [faceAuthStatus, setFaceAuthStatus] = useState(null);
+  const { userInfo, logout } = useContext(AuthContext);
   const [message] = useState("");
   const [messageType] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const checkFaceAuthStatus = async () => {
-      try {
-        const response = await checkFaceAuth();
-        setFaceAuthStatus(response.can_use_face_auth);
-      } catch (error) {
-        console.error("Error checking face auth status:", error);
-        setFaceAuthStatus(false);
-      }
-    };
-
-    checkFaceAuthStatus();
-  }, [checkFaceAuth]);
 
   const handleLogout = () => {
     setIsLoading(true);
@@ -73,17 +58,17 @@ export const ProfilePage = () => {
             </div>
             <div className="profile__field">
               <strong>Face Authentication:</strong>
-              <span>{faceAuthStatus ? "Enabled" : "Not Enabled"}</span>
+              <span>{userInfo.face_image_key ? "Enabled" : "Not Enabled"}</span>
             </div>
           </div>
 
           <div className="profile__actions">
-            {!faceAuthStatus && (
+            {!userInfo.face_image_key && (
               <Link to="/register-face">
                 <PrimaryButton>Setup Face Authentication</PrimaryButton>
               </Link>
             )}
-            {faceAuthStatus && (
+            {userInfo.face_image_key && (
               <Link to="/register-face">
                 <PrimaryButton>Update Face Authentication</PrimaryButton>
               </Link>
