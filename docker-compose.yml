@@ -49,13 +49,14 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     restart: unless-stopped
     depends_on:
       fast-api:
         condition: service_started
     volumes:
       - ./frontend/src:/app/src
+      - ./frontend/ssl:/etc/nginx/ssl
     ports:
       - "443:443"
     networks:
