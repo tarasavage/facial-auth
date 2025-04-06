@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }) => {
         username: responseData.data.username,
         email: responseData.data.email,
         email_verified: responseData.data.email_verified,
+        face_image_key: responseData.data.face_image_key,
       });
     } catch (error) {
       console.error("Error fetching user info:", error);
@@ -91,6 +92,7 @@ export const AuthProvider = ({ children }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
 
       const data = await response.json();

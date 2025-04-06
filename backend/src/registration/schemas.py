@@ -36,7 +36,7 @@ class RegisterUserFaceResponse(BaseModel):
     expires_in: int
 
 
-class SignInViaFaceResponse(BaseModel):
+class SignInResponse(BaseModel):
     message: str
     access_token: str
     refresh_token: str

@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { InputField } from "@/components/forms/InputField";
 import { PrimaryButton } from "@/components/buttons/PrimaryButton";
 import { FormMessage } from "@/components/forms/FormMessage";
+import { AuthContext } from "@/context/AuthContext";
 
 export const ConfirmSignup = () => {
   const [email, setEmail] = useState("");
@@ -12,12 +13,19 @@ export const ConfirmSignup = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const { userInfo } = useContext(AuthContext);
 
   useEffect(() => {
+    // Redirect to profile if user is already logged in
+    if (userInfo) {
+      navigate("/me");
+      return;
+    }
+    
     if (location.state && location.state.email) {
       setEmail(location.state.email);
     }
-  }, [location]);
+  }, [location, userInfo, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,8 +43,9 @@ export const ConfirmSignup = () => {
       const data = await response.json();
       if (!response.ok) {
         setError(data.detail || "Failed to confirm signup");
+      } else {
+        navigate("/signin", { state: { email } });
       }
-      navigate("/signin", { state: { email } });
     } catch (error) {
       const message =
         error || "An error occurred during signup. Please try again.";
@@ -59,9 +68,11 @@ export const ConfirmSignup = () => {
           />
           <InputField
             label="Confirmation Code"
-            type="number"
+            type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
+            pattern="[0-9]*"
+            inputMode="numeric"
           />
           <div className="form__button-group">
             <PrimaryButton type="submit" fullWidth>
