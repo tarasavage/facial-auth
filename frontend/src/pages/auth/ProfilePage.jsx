@@ -27,10 +27,7 @@ export const ProfilePage = () => {
 
   const handleLogout = () => {
     setIsLoading(true);
-    // Simulate a short delay to show the loading state
-    setTimeout(() => {
-      logout();
-    }, 300);
+    logout();
   };
 
   if (!userInfo) {
