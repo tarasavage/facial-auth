@@ -21,6 +21,11 @@ class CreateUser(BaseUser):
     password: str
 
 
+class CreateNonDirectUser(BaseUser):
+    password: str
+    client_id: str
+
+
 class UpdateUser(SQLModel):
     email: Optional[EmailStr] = None
     username: Optional[str] = None

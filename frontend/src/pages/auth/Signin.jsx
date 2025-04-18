@@ -78,7 +78,7 @@ export const Signin = () => {
       
       const data = await result.json();
       
-      if (data.success) {
+      if (result.ok) {
         if (!data.access_token) { 
           setMessage("Face authentication failed. Please try password login.");
           setMessageType("error");

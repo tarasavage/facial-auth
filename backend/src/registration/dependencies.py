@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from fastapi import Depends
@@ -11,6 +12,9 @@ from registration.schemas import CookieProfile
 from tokens.utils import decode_jwt
 
 from typing_extensions import Annotated, Doc
+
+
+logger = logging.getLogger(__name__)
 
 
 PERSON_IDENTITY_COOKIE_NAME = "__PersonIdentityToken"
@@ -105,9 +109,9 @@ def get_user_from_cookie(token: CookieBearerTokenDependency) -> CookieProfile:
         encrypted_token = decode_jwt(token.credentials)
         return CookieProfile(
             email=encrypted_token["email"],
-            sub=encrypted_token["sub"],
         )
     except Exception as e:
+        logger.error(f"Error decoding token: {e}")
         raise HTTPException(status_code=403, detail=str(e)) from e
 
 

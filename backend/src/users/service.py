@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from users.model import User
+from users.models import User
 from users.repo import UserUnitOfWorkDependency
 
 

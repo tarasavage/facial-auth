@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 
 from tokens.config import JWT
+from tokens.schemas import AccessToken
 
 
 def encode_jwt(
@@ -27,12 +28,6 @@ def decode_jwt(
     algorithm: str = JWT.ALGORITHM,
 ) -> dict:
     """Decode JWT token using public key and algorithm"""
-    if not isinstance(token, (str, bytes)):
-        raise ValueError("Token must be a string or bytes")
-
-    if not isinstance(algorithm, str):
-        raise ValueError("Algorithm must be a string")
-
     if algorithm.lower() == "none":
         raise ValueError("Secure algorithm is required")
 
@@ -44,7 +39,16 @@ def decode_jwt(
             "verify_signature": True,
             "verify_exp": True,
             "verify_iat": True,
-            "verify_sub": True,
-            "require": ["exp", "iat", "sub"],
+            "require": ["exp", "iat"],
         },
     )
+
+
+def generate_access_token(payload: dict) -> AccessToken:
+    payload = payload.copy()
+    payload.update(token_type="access")
+
+    expires_in = JWT.ACCESS_TOKEN_EXPIRES_IN_SECONDS
+    token = encode_jwt(payload, expires_in=expires_in)
+
+    return AccessToken(access_token=token, expires_in=expires_in)

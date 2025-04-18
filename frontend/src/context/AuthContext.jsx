@@ -25,10 +25,10 @@ export const AuthProvider = ({ children }) => {
 
       const responseData = await response.json();
       setUserInfo({
-        username: responseData.data.username,
-        email: responseData.data.email,
-        email_verified: responseData.data.email_verified,
-        face_image_key: responseData.data.face_image_key,
+        username: responseData.username,
+        email: responseData.email,
+        email_verified: responseData.email_verified,
+        face_image_key: responseData.face_image_key,
       });
     } catch (error) {
       console.error("Error fetching user info:", error);

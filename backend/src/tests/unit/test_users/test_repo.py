@@ -1,8 +1,8 @@
 from unittest.mock import MagicMock, AsyncMock
 
 import pytest
-from users.model import User
-from users.repo import UsersUnitOfWork, UsersRepository
+from users.models import User
+from users.repo import UsersUnitOfWork, UserRepository
 
 
 class TestUserUnitOfWork:
@@ -41,10 +41,10 @@ class TestUserRepository:
 
     @pytest.fixture
     def repo(self, async_session):
-        return UsersRepository(session=async_session)
+        return UserRepository(session=async_session)
 
     def test_init(self, async_session):
-        repo = UsersRepository(session=async_session)
+        repo = UserRepository(session=async_session)
 
         assert repo.session is async_session
         assert repo.model is User

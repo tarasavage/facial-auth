@@ -5,20 +5,20 @@ from fastapi import Depends
 from sqlmodel import Session
 
 from core.db import get_session
-from users.exception import (
+from users.exceptions import (
     UserAlreadyExistsError,
     UserNotDeletedError,
     UserNotFoundError,
     UserNotUpdatedError,
 )
 from core.repository import SQLModelRepository
-from users.model import User
+from users.models import User
 
 
 class UsersUnitOfWork:
     def __init__(self, session: Session) -> None:
         self.session = session
-        self.user_repo = UsersRepository(self.session)
+        self.user_repo = UserRepository(self.session)
 
     async def __aenter__(self) -> "UsersUnitOfWork":
         return self
@@ -33,7 +33,7 @@ class UsersUnitOfWork:
         await self.session.rollback()
 
 
-class UsersRepository(SQLModelRepository):
+class UserRepository(SQLModelRepository):
     model = User
 
     async def create(self, data: Dict[str, Any]) -> User:
@@ -75,8 +75,11 @@ class UsersRepository(SQLModelRepository):
 
 def get_users_repository(
     session: Annotated[Session, Depends(get_session)],
-) -> UsersRepository:
-    return UsersRepository(session)
+) -> UserRepository:
+    return UserRepository(session)
+
+
+UserRepositoryDependency = Annotated[UserRepository, Depends(get_users_repository)]
 
 
 def get_user_unit_of_work(
