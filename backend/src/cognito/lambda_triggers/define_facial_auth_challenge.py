@@ -18,7 +18,11 @@ def lambda_handler(event: dict, context: dict) -> dict:
         if len(session) == 0:
             logger.info("Initial authentication attempt - issuing CUSTOM_CHALLENGE")
 
-            response.update(failAuthentication=False, issueTokens=False, challengeName="CUSTOM_CHALLENGE",)
+            response.update(
+                failAuthentication=False,
+                issueTokens=False,
+                challengeName="CUSTOM_CHALLENGE",
+            )
 
         elif (
             len(session) == 1

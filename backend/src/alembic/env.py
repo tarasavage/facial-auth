@@ -9,7 +9,8 @@ from sqlmodel import SQLModel
 from alembic import context
 from core.config import get_settings
 
-from users.model import User  # noqa
+from users.models import User  # noqa
+from clients.models import Client  # noqa
 
 config = context.config
 
